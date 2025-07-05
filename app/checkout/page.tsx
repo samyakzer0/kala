@@ -150,8 +150,8 @@ export default function CheckoutPage() {
       clearCart();
       setIsSuccess(true);
       
-      // Redirect to success page
-      router.push('/checkout/success');
+      // Redirect to success page with order ID
+      router.push(`/checkout/success?orderId=${result.orderId}`);
     } catch (error) {
       console.error('Error placing order:', error);
       alert('There was an error processing your order. Please try again.');
