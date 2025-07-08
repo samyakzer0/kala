@@ -31,14 +31,14 @@ export default function CustomerTestimonials() {
   };
 
   return (
-    <section className="bg-[#f6eddf] py-20 px-4">
+    <section className="bg-primary-100 py-20 px-4">
       <div className="max-w-4xl mx-auto">
-        <h2 className="text-4xl md:text-5xl font-serif text-gray-900 text-center mb-16">
+        <h2 className="text-4xl md:text-5xl font-serif text-primary-500 text-center mb-16">
           What Our Customers Say
         </h2>
         
         <div className="relative">
-          <div className="bg-white rounded-2xl p-8 md:p-12 shadow-lg">
+          <div className="bg-ivory-400 rounded-2xl p-8 md:p-12 shadow-lg">
             <div className="flex flex-col md:flex-row items-center gap-8">
               <div className="flex-shrink-0">
                 <div className="w-24 h-24 rounded-full overflow-hidden">
@@ -51,10 +51,10 @@ export default function CustomerTestimonials() {
               </div>
               
               <div className="flex-1 text-center md:text-left">
-                <p className="text-lg md:text-xl text-gray-700 mb-6 leading-relaxed italic">
+                <p className="text-lg md:text-xl text-primary-400 mb-6 leading-relaxed italic">
                   "{testimonials[currentSlide].quote}"
                 </p>
-                <p className="font-serif text-xl text-gray-900">
+                <p className="font-serif text-xl text-primary-500">
                   — {testimonials[currentSlide].name}
                 </p>
               </div>
@@ -64,7 +64,7 @@ export default function CustomerTestimonials() {
           <div className="flex justify-between items-center mt-8">
             <button 
               onClick={prevSlide}
-              className="w-12 h-12 rounded-full bg-black text-white flex items-center justify-center hover:bg-gray-800 transition-colors cursor-pointer"
+              className="w-12 h-12 rounded-full bg-secondary-400 text-ivory-400 flex items-center justify-center hover:bg-secondary-500 transition-colors cursor-pointer"
             >
               ←
             </button>
@@ -75,7 +75,7 @@ export default function CustomerTestimonials() {
                   key={index}
                   onClick={() => setCurrentSlide(index)}
                   className={`w-3 h-3 rounded-full transition-colors cursor-pointer ${
-                    index === currentSlide ? 'bg-black' : 'bg-gray-300'
+                    index === currentSlide ? 'bg-secondary-400' : 'bg-secondary-200'
                   }`}
                 />
               ))}
@@ -83,7 +83,7 @@ export default function CustomerTestimonials() {
             
             <button 
               onClick={nextSlide}
-              className="w-12 h-12 rounded-full bg-black text-white flex items-center justify-center hover:bg-gray-800 transition-colors cursor-pointer"
+              className="w-12 h-12 rounded-full bg-secondary-400 text-ivory-400 flex items-center justify-center hover:bg-secondary-500 transition-colors cursor-pointer"
             >
               →
             </button>

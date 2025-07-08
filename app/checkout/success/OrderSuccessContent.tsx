@@ -86,12 +86,12 @@ export default function OrderSuccessContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-stone-50">
+      <div className="min-h-screen bg-primary">
         <Header />
         <main className="container mx-auto px-4 py-16">
           <div className="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-sm text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#872730] mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading order information...</p>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-secondary mx-auto mb-4"></div>
+            <p className="text-primary">Loading order information...</p>
           </div>
         </main>
         <Footer />
@@ -100,7 +100,7 @@ export default function OrderSuccessContent() {
   }
 
   return (
-    <div className="min-h-screen bg-stone-50">
+    <div className="min-h-screen bg-primary">
       <Header />
       
       <main className="container mx-auto px-4 py-16">
@@ -132,13 +132,13 @@ export default function OrderSuccessContent() {
             </svg>
           </motion.div>
           
-          <h1 className="text-3xl font-serif mb-4">Thank You for Your Order!</h1>
+          <h1 className="text-3xl font-serif mb-4 text-primary">Thank You for Your Order!</h1>
           
           {orderInfo ? (
             <div className="text-left">
-              <div className="bg-stone-50 p-6 rounded-lg mb-6">
-                <h2 className="text-xl font-medium mb-4">Order Details</h2>
-                <div className="space-y-2">
+              <div className="bg-secondary/10 p-6 rounded-lg mb-6">
+                <h2 className="text-xl font-medium mb-4 text-primary">Order Details</h2>
+                <div className="space-y-2 text-primary">
                   <p><strong>Order ID:</strong> {orderInfo.id}</p>
                   <p><strong>Customer:</strong> {orderInfo.customer.firstName} {orderInfo.customer.lastName}</p>
                   <p><strong>Email:</strong> {orderInfo.customer.email}</p>
@@ -148,15 +148,15 @@ export default function OrderSuccessContent() {
               </div>
               
               <div className="mb-6">
-                <h3 className="text-lg font-medium mb-2">Order Status</h3>
+                <h3 className="text-lg font-medium mb-2 text-primary">Order Status</h3>
                 <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(orderInfo.status)}`}>
                   {orderInfo.status.charAt(0).toUpperCase() + orderInfo.status.slice(1)}
                 </div>
-                <p className="text-gray-600 mt-2">{getStatusMessage(orderInfo.status)}</p>
+                <p className="text-primary/80 mt-2">{getStatusMessage(orderInfo.status)}</p>
               </div>
               
               <div className="border-t pt-6">
-                <p className="text-gray-600 mb-6">
+                <p className="text-primary/80 mb-6">
                   We've sent a confirmation email to <strong>{orderInfo.customer.email}</strong> with your order details.
                   {orderInfo.status === 'pending' && (
                     ' You will receive another email once your order has been approved and is ready to ship.'
@@ -166,12 +166,12 @@ export default function OrderSuccessContent() {
             </div>
           ) : (
             <div>
-              <p className="text-gray-600 mb-6">
+              <p className="text-primary/80 mb-6">
                 Your order has been received and is being processed. We've sent a confirmation email with your order details.
               </p>
-              <div className="bg-stone-50 p-6 rounded-lg mb-6">
-                <h2 className="text-xl font-medium mb-2">What happens next?</h2>
-                <div className="text-left space-y-2">
+              <div className="bg-secondary/10 p-6 rounded-lg mb-6">
+                <h2 className="text-xl font-medium mb-2 text-primary">What happens next?</h2>
+                <div className="text-left space-y-2 text-primary">
                   <p>1. Our team will review your order</p>
                   <p>2. You'll receive an email confirmation when approved</p>
                   <p>3. Your jewelry will be carefully prepared and shipped</p>
@@ -182,9 +182,21 @@ export default function OrderSuccessContent() {
           )}
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
+            {orderInfo && (
+              <Link href={`/track-order?orderId=${orderInfo.id}`}>
+                <motion.button
+                  className="bg-ivory-400 text-primary-500 px-6 py-3 rounded-full hover:bg-ivory-300 transition-colors font-medium shadow-lg border border-primary-200"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  Track Your Order
+                </motion.button>
+              </Link>
+            )}
+            
             <Link href="/shop">
               <motion.button
-                className="bg-[#872730] text-white px-6 py-3 rounded-full hover:bg-[#872730]/90 transition-colors"
+                className="bg-primary-500 text-ivory-400 px-6 py-3 rounded-full hover:bg-primary-600 transition-colors font-medium shadow-md"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
@@ -194,7 +206,7 @@ export default function OrderSuccessContent() {
             
             <Link href="/">
               <motion.button
-                className="border border-[#872730] text-[#872730] px-6 py-3 rounded-full hover:bg-[#872730] hover:text-white transition-colors"
+                className="border border-primary text-primary px-6 py-3 rounded-full hover:bg-primary hover:text-ivory transition-colors"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
@@ -204,8 +216,8 @@ export default function OrderSuccessContent() {
           </div>
           
           {orderInfo && (
-            <div className="mt-8 p-4 bg-blue-50 rounded-lg">
-              <p className="text-sm text-blue-800">
+            <div className="mt-8 p-4 bg-secondary/10 rounded-lg">
+              <p className="text-sm text-primary">
                 <strong>Need help?</strong> Contact us at orders@kala-jewelry.com or +1 (555) 123-4567 
                 with your order ID: <span className="font-mono">{orderInfo.id}</span>
               </p>

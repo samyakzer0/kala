@@ -2,12 +2,12 @@
 
 export default function IntroSection() {
   return (
-    <section id="intro-section" className="bg-white py-20 px-4">
+    <section id="intro-section" className="bg-ivory-400 py-20 px-4">
       <div className="max-w-4xl mx-auto text-center">
-        <h2 className="text-4xl md:text-5xl font-serif text-gray-900 mb-8">
+        <h2 className="text-4xl md:text-5xl font-serif text-primary-500 mb-8">
          Less but beautifully made.
         </h2>
-        <p className="text-lg text-gray-600 mb-8 leading-relaxed max-w-2xl mx-auto">
+        <p className="text-lg text-primary-400 mb-8 leading-relaxed max-w-2xl mx-auto">
           We are artists who discovered our love for jewelry making and turned it into our creative expression. Every piece we craft is a work of art, born from our passion for beautiful design and our dedication to creating something truly special. Each ring, necklace, and bracelet tells a story of youthful creativity and artistic vision.
         </p>
       </div>

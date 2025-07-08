@@ -22,6 +22,8 @@ export default function Header() {
       setActiveTab('shop');
     } else if (pathname.startsWith('/checkout')) {
       setActiveTab('shop');
+    } else if (pathname.startsWith('/track-order')) {
+      setActiveTab('track-order');
     }
   }, [pathname]);
 
@@ -42,9 +44,9 @@ export default function Header() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 bg-[#872730] px-4 py-4">
+      <header className="sticky top-0 z-50 bg-primary-500 px-4 py-4 shadow-lg">
         <div className="flex items-center justify-between">
-          <div className="text-white text-2xl font-serif">
+          <div className="text-ivory-400 text-2xl font-serif">
             <Link href="/" className="flex items-center">
               <img src="/logo.png" alt="KAMTI" className="h-16 w-auto" />
             </Link>
@@ -54,12 +56,12 @@ export default function Header() {
           <nav className="hidden md:flex items-center space-x-8">
             <Link 
               href="/"
-              className={`text-white hover:text-white/80 transition-colors relative ${activeTab === 'home' ? 'font-medium' : ''}`}
+              className={`text-ivory-400 hover:text-ivory-200 transition-colors relative ${activeTab === 'home' ? 'font-medium' : ''}`}
             >
               Home
               {activeTab === 'home' && (
                 <motion.div 
-                  className="absolute -bottom-1 left-0 right-0 h-0.5 bg-white" 
+                  className="absolute -bottom-1 left-0 right-0 h-0.5 bg-ivory-400" 
                   layoutId="underline"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -69,12 +71,27 @@ export default function Header() {
             </Link>
             <Link 
               href="/shop"
-              className={`text-white hover:text-white/80 transition-colors relative ${activeTab === 'shop' ? 'font-medium' : ''}`}
+              className={`text-ivory-400 hover:text-ivory-200 transition-colors relative ${activeTab === 'shop' ? 'font-medium' : ''}`}
             >
               Shop
               {activeTab === 'shop' && (
                 <motion.div 
-                  className="absolute -bottom-1 left-0 right-0 h-0.5 bg-white" 
+                  className="absolute -bottom-1 left-0 right-0 h-0.5 bg-ivory-400" 
+                  layoutId="underline"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.3 }}
+                />
+              )}
+            </Link>
+            <Link 
+              href="/track-order"
+              className={`text-ivory-400 hover:text-ivory-200 transition-colors relative ${activeTab === 'track-order' ? 'font-medium' : ''}`}
+            >
+              Track Order
+              {activeTab === 'track-order' && (
+                <motion.div 
+                  className="absolute -bottom-1 left-0 right-0 h-0.5 bg-ivory-400" 
                   layoutId="underline"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -84,12 +101,12 @@ export default function Header() {
             </Link>
             <Link 
               href="/about"
-              className={`text-white hover:text-white/80 transition-colors relative ${activeTab === 'about' ? 'font-medium' : ''}`}
+              className={`text-ivory-400 hover:text-ivory-200 transition-colors relative ${activeTab === 'about' ? 'font-medium' : ''}`}
             >
               About
               {activeTab === 'about' && (
                 <motion.div 
-                  className="absolute -bottom-1 left-0 right-0 h-0.5 bg-white" 
+                  className="absolute -bottom-1 left-0 right-0 h-0.5 bg-ivory-400" 
                   layoutId="underline"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -110,10 +127,12 @@ export default function Header() {
             
             <button 
               onClick={toggleMenu}
-              className="text-white text-2xl hover:text-white/80 transition-colors"
+              className="text-ivory-400 p-2 hover:text-ivory-200 transition-colors flex flex-col justify-center items-center w-8 h-8"
               aria-label="Toggle menu"
             >
-              ☰
+              <div className={`w-6 h-0.5 bg-ivory-400 transform transition-all duration-300 ${isMenuOpen ? 'rotate-45 translate-y-1.5' : ''}`}></div>
+              <div className={`w-6 h-0.5 bg-ivory-400 transition-all duration-300 my-1 ${isMenuOpen ? 'opacity-0' : ''}`}></div>
+              <div className={`w-6 h-0.5 bg-ivory-400 transform transition-all duration-300 ${isMenuOpen ? '-rotate-45 -translate-y-1.5' : ''}`}></div>
             </button>
           </div>
         </div>
@@ -129,77 +148,119 @@ export default function Header() {
         ></div>
         
         {/* Menu Panel */}
-        <div className={`fixed right-0 top-0 h-full w-80 bg-white transform transition-transform duration-300 ${
+        <div className={`fixed right-0 top-0 h-full w-80 max-w-[90vw] bg-ivory-400 transform transition-transform duration-300 ease-in-out shadow-xl ${
           isMenuOpen ? 'translate-x-0' : 'translate-x-full'
         }`}>
-          <div className="flex items-center justify-between p-4 border-b">
-            <div className="text-[#872730] text-2xl font-serif">
-              <img src="/logo.png" alt="KAMTI" className="h-12 w-auto" />
+          <div className="flex items-center justify-between p-6 border-b bg-primary-50">
+            <div className="text-primary-500 text-xl font-serif">
+              <img src="/logo.png" alt="KAMTI" className="h-10 w-auto" />
             </div>
             <button 
               onClick={toggleMenu}
-              className="text-gray-600 text-2xl hover:text-gray-800 transition-colors"
+              className="text-primary-600 p-2 hover:text-primary-800 transition-colors flex flex-col justify-center items-center w-8 h-8"
               aria-label="Close menu"
             >
-              ✕
+              <div className="w-6 h-0.5 bg-primary-600 transform rotate-45 translate-y-0.5"></div>
+              <div className="w-6 h-0.5 bg-primary-600 transform -rotate-45 -translate-y-0.5"></div>
             </button>
           </div>
           
-          <nav className="p-4">
-            <ul className="space-y-4">
+          <nav className="p-6 overflow-y-auto h-full pb-20">
+            <ul className="space-y-2">
               <li>
                 <Link
                   href="/"
-                  className={`block py-3 text-lg transition-colors border-b border-gray-100 ${
-                    activeTab === 'home' ? 'text-[#872730] font-medium' : 'text-gray-800 hover:text-[#872730]'
+                  className={`block py-4 px-4 text-lg transition-colors rounded-lg ${
+                    activeTab === 'home' ? 'text-primary-500 font-medium bg-primary-50' : 'text-primary-700 hover:text-primary-500 hover:bg-primary-50'
                   }`}
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  Home
+                  🏠 Home
                 </Link>
               </li>
               <li>
                 <Link
                   href="/shop"
-                  className={`block py-3 text-lg transition-colors border-b border-gray-100 ${
-                    activeTab === 'shop' ? 'text-[#872730] font-medium' : 'text-gray-800 hover:text-[#872730]'
+                  className={`block py-4 px-4 text-lg transition-colors rounded-lg ${
+                    activeTab === 'shop' ? 'text-primary-500 font-medium bg-primary-50' : 'text-primary-700 hover:text-primary-500 hover:bg-primary-50'
                   }`}
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  Shop
+                  🛍️ Shop
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/track-order"
+                  className={`block py-4 px-4 text-lg transition-colors rounded-lg ${
+                    activeTab === 'track-order' ? 'text-primary-500 font-medium bg-primary-50' : 'text-primary-700 hover:text-primary-500 hover:bg-primary-50'
+                  }`}
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  📦 Track Order
                 </Link>
               </li>
               <li>
                 <Link
                   href="/about"
-                  className={`block py-3 text-lg transition-colors border-b border-gray-100 ${
-                    activeTab === 'about' ? 'text-[#872730] font-medium' : 'text-gray-800 hover:text-[#872730]'
+                  className={`block py-4 px-4 text-lg transition-colors rounded-lg ${
+                    activeTab === 'about' ? 'text-primary-500 font-medium bg-primary-50' : 'text-primary-700 hover:text-primary-500 hover:bg-primary-50'
                   }`}
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  About
+                  ℹ️ About
                 </Link>
               </li>
-              {menuItems.map((item, index) => (
-                <li key={index}>
-                  <Link
-                    href={item.path}
-                    className="block py-3 text-lg text-gray-800 hover:text-[#872730] transition-colors border-b border-gray-100 last:border-b-0"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    {item.name}
-                  </Link>
-                </li>
-              ))}
+              
+              <li className="pt-4">
+                <div className="text-sm font-medium text-primary-500 px-4 pb-2">Categories</div>
+                <ul className="space-y-1">
+                  {categories.filter(cat => cat.id !== 'all').map((cat, index) => (
+                    <li key={index}>
+                      <Link
+                        href={`/category/${cat.id}`}
+                        className="block py-3 px-4 text-primary-700 hover:text-primary-500 hover:bg-primary-50 transition-colors rounded-lg"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        {cat.name}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </li>
+              
+              <li className="pt-4">
+                <div className="text-sm font-medium text-primary-500 px-4 pb-2">Special</div>
+                <ul className="space-y-1">
+                  <li>
+                    <Link
+                      href="/shop?filter=new"
+                      className="block py-3 px-4 text-primary-700 hover:text-primary-500 hover:bg-primary-50 transition-colors rounded-lg"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      ✨ New Arrivals
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      href="/shop?filter=bestseller"
+                      className="block py-3 px-4 text-primary-700 hover:text-primary-500 hover:bg-primary-50 transition-colors rounded-lg"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      🔥 Bestsellers
+                    </Link>
+                  </li>
+                </ul>
+              </li>
             </ul>
             
-            <div className="mt-8 pt-8 border-t border-gray-200">
+            <div className="mt-8 pt-6 border-t border-primary-200">
               <Link href="/shop" className="block">
                 <button 
-                  className="w-full bg-[#872730] text-white py-3 px-6 rounded-full hover:bg-[#872730]/90 transition-colors whitespace-nowrap"
+                  className="w-full bg-ivory-400 text-primary-500 py-4 px-6 rounded-xl hover:bg-ivory-300 transition-colors text-lg font-medium shadow-lg border border-primary-200"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  Shop Now
+                  🛒 Shop Now
                 </button>
               </Link>
             </div>

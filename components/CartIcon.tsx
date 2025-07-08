@@ -38,7 +38,7 @@ export default function CartIcon() {
         
         {itemCount > 0 && (
           <motion.div 
-            className="absolute -top-2 -right-2 bg-white text-[#872730] rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold"
+            className="absolute -top-2 -right-2 bg-secondary-400 text-ivory-400 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold"
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ type: 'spring', stiffness: 500, damping: 15 }}

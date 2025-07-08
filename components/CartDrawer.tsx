@@ -69,18 +69,18 @@ export default function CartDrawer({ onClose }: CartDrawerProps) {
       
       {/* Drawer */}
       <motion.div
-        className="fixed right-0 top-0 h-full w-full sm:w-96 bg-white z-50 shadow-lg overflow-hidden flex flex-col"
+        className="fixed right-0 top-0 h-full w-full sm:w-96 bg-ivory-400 z-50 shadow-lg overflow-hidden flex flex-col"
         initial={{ x: '100%' }}
         animate={{ x: 0 }}
         exit={{ x: '100%' }}
         transition={{ type: 'tween', duration: 0.3 }}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b">
-          <h2 className="text-xl font-serif">Your Cart</h2>
+        <div className="flex items-center justify-between p-4 border-b border-primary-200">
+          <h2 className="text-xl font-serif text-primary-500">Your Cart</h2>
           <button 
             onClick={onClose}
-            className="text-gray-600 hover:text-gray-800 transition-colors"
+            className="text-primary-400 hover:text-primary-500 transition-colors"
             aria-label="Close cart"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -93,10 +93,10 @@ export default function CartDrawer({ onClose }: CartDrawerProps) {
         <div className="flex-1 overflow-y-auto p-4">
           {items.length === 0 ? (
             <div className="text-center py-8">
-              <p className="text-gray-500 mb-4">Your cart is empty</p>
+              <p className="text-primary-400 mb-4">Your cart is empty</p>
               <button
                 onClick={onClose}
-                className="text-[#872730] hover:underline"
+                className="text-secondary-400 hover:underline"
               >
                 Continue Shopping
               </button>
@@ -114,28 +114,28 @@ export default function CartDrawer({ onClose }: CartDrawerProps) {
                   transition={{ duration: 0.3 }}
                 >
                   {/* Product Image */}
-                  <div className="w-16 h-16 bg-white rounded-md flex items-center justify-center">
+                  <div className="w-16 h-16 bg-ivory-300 rounded-md flex items-center justify-center">
                     {renderProductImage(item.category, item.name, item.gemColor)}
                   </div>
                   
                   {/* Product Info */}
                   <div className="flex-1">
-                    <h3 className="font-medium text-sm">{item.name}</h3>
-                    <p className="text-gray-600 text-xs">${item.price}</p>
+                    <h3 className="font-medium text-sm text-primary-500">{item.name}</h3>
+                    <p className="text-primary-400 text-xs">${item.price}</p>
                     
                     {/* Quantity Controls */}
                     <div className="flex items-center mt-1">
                       <button
                         onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                        className="w-6 h-6 bg-stone-200 rounded-full flex items-center justify-center"
+                        className="w-6 h-6 bg-primary-200 rounded-full flex items-center justify-center text-primary-500"
                         aria-label="Decrease quantity"
                       >
                         -
                       </button>
-                      <span className="mx-2 text-sm">{item.quantity}</span>
+                      <span className="mx-2 text-sm text-primary-500">{item.quantity}</span>
                       <button
                         onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                        className="w-6 h-6 bg-stone-200 rounded-full flex items-center justify-center"
+                        className="w-6 h-6 bg-primary-200 rounded-full flex items-center justify-center text-primary-500"
                         aria-label="Increase quantity"
                       >
                         +
@@ -161,17 +161,17 @@ export default function CartDrawer({ onClose }: CartDrawerProps) {
         </div>
         
         {/* Footer */}
-        <div className="p-4 border-t bg-stone-50">
+        <div className="p-4 border-t border-primary-200 bg-primary-50">
           {items.length > 0 && (
             <>
-              <div className="flex justify-between mb-4">
+              <div className="flex justify-between mb-4 text-primary-500">
                 <span>Subtotal</span>
                 <span className="font-medium">${subtotal.toFixed(2)}</span>
               </div>
               
               <Link href="/checkout">
                 <motion.button
-                  className="w-full bg-[#872730] text-white py-3 rounded-full hover:bg-[#872730]/90 transition-colors"
+                  className="w-full bg-ivory-400 text-primary-500 py-3 rounded-full hover:bg-ivory-300 transition-colors shadow-lg border border-primary-200"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={onClose}

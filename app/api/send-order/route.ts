@@ -12,8 +12,26 @@ import {
   sendOrderConfirmationToCustomer 
 } from '../../../utils/email';
 import { createOrder } from '../../../utils/orderStorage';
+import { isProductInStock, decreaseProductStock, getProductById } from '../../../utils/productStorage';
+import { checkRateLimit, RATE_LIMITS, createRateLimitHeaders } from '../../../utils/rateLimit';
+import { getClientIP } from '../../../utils/auth';
+import { validateEmail } from '../../../utils/validation';
+import { trackProductOrder } from '../../../utils/analytics';
 
 export async function POST(request: NextRequest) {
+  const clientIP = getClientIP(request);
+  
+  // Apply rate limiting
+  const rateLimit = checkRateLimit(clientIP, RATE_LIMITS.ORDER, 'send-order');
+  const rateLimitHeaders = createRateLimitHeaders(rateLimit, RATE_LIMITS.ORDER);
+  
+  if (!rateLimit.allowed) {
+    return NextResponse.json(
+      { success: false, message: rateLimit.error },
+      { status: 429, headers: rateLimitHeaders }
+    );
+  }
+  
   try {
     const body = await request.json();
     const { customer, items, subtotal } = body;
@@ -38,20 +56,43 @@ export async function POST(request: NextRequest) {
     }
     
     // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(customer.email)) {
+    if (!validateEmail(customer.email)) {
       return NextResponse.json(
         { success: false, message: 'Invalid email address' },
-        { status: 400 }
+        { status: 400, headers: rateLimitHeaders }
       );
     }
     
-    // Validate items
+    // Validate items and check stock availability
     if (!Array.isArray(items) || items.length === 0) {
       return NextResponse.json(
         { success: false, message: 'No items in order' },
         { status: 400 }
       );
+    }
+    
+    // Check stock for all items before processing
+    const stockErrors = [];
+    for (const item of items) {
+      const inStock = await isProductInStock(item.id, item.quantity);
+      if (!inStock) {
+        const product = await getProductById(item.id);
+        const availableStock = product ? product.stock : 0;
+        stockErrors.push({
+          item: item.name,
+          requested: item.quantity,
+          available: availableStock
+        });
+      }
+    }
+    
+    // If any items are out of stock, return error
+    if (stockErrors.length > 0) {
+      return NextResponse.json({
+        success: false,
+        message: 'Some items are out of stock',
+        stockErrors: stockErrors
+      }, { status: 400 });
     }
     
     // Create order object
@@ -82,6 +123,13 @@ export async function POST(request: NextRequest) {
     
     // Save order to storage
     await createOrder(order);
+    
+    // Decrease stock for all items (reserve inventory)
+    for (const item of items) {
+      await decreaseProductStock(item.id, item.quantity);
+      // Track product orders for analytics
+      await trackProductOrder(item.id, item.quantity);
+    }
     
     // Generate email templates
     const adminEmailTemplate = generateAdminOrderEmail(order);

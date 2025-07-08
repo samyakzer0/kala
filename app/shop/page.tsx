@@ -5,13 +5,13 @@ import ShopClient from './ShopClient';
 
 export default function ShopPage() {
   return (
-    <div className="min-h-screen bg-stone-50">
+    <div className="min-h-screen bg-primary-500">
       <Header />
       <Suspense fallback={
         <div className="container mx-auto px-4 py-8">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-[#872730] mx-auto"></div>
-            <p className="mt-4 text-gray-600">Loading products...</p>
+            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-secondary mx-auto"></div>
+            <p className="mt-4 text-ivory-400">Loading products...</p>
           </div>
         </div>
       }>

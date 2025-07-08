@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Product } from '../data/products';
+import { Product } from '../types/product';
 import { useCart } from '../context/CartContext';
 import RingPlaceholder from './RingPlaceholder';
 import NecklacePlaceholder from './NecklacePlaceholder';
@@ -17,6 +17,15 @@ type ProductCardProps = {
 export default function ProductCard({ product }: ProductCardProps) {
   const [isHovered, setIsHovered] = useState(false);
   const { addItem } = useCart();
+  
+  // Track product view when clicked
+  const handleProductClick = async () => {
+    try {
+      await fetch(`/api/popular-products?productId=${product.id}`);
+    } catch (error) {
+      console.error('Error tracking product view:', error);
+    }
+  };
   
   // Function to render the appropriate placeholder based on product category
   const renderProductImage = () => {
@@ -36,14 +45,14 @@ export default function ProductCard({ product }: ProductCardProps) {
 
   return (
     <motion.div
-      className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+      className="bg-ivory-300 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
       whileHover={{ y: -5 }}
       transition={{ duration: 0.3 }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <Link href={`/product/${product.id}`}>
-        <div className="relative aspect-square bg-stone-100 flex items-center justify-center overflow-hidden">
+      <Link href={`/product/${product.id}`} onClick={handleProductClick}>
+        <div className="relative aspect-square bg-ivory-200 flex items-center justify-center overflow-hidden">
           <motion.div
             whileHover={{ scale: 1.05 }}
             transition={{ duration: 0.3 }}
@@ -53,14 +62,8 @@ export default function ProductCard({ product }: ProductCardProps) {
           </motion.div>
           
           {product.new && (
-            <div className="absolute top-2 left-2 bg-[#872730] text-white text-xs px-2 py-1 rounded-full">
+            <div className="absolute top-2 left-2 bg-primary-500 text-ivory-400 text-xs px-2 py-1 rounded-full">
               New
-            </div>
-          )}
-          
-          {product.bestseller && !product.new && (
-            <div className="absolute top-2 left-2 bg-black text-white text-xs px-2 py-1 rounded-full">
-              Bestseller
             </div>
           )}
         </div>
@@ -68,24 +71,44 @@ export default function ProductCard({ product }: ProductCardProps) {
       
       <div className="p-4">
         <div className="flex justify-between items-center mb-2">
-          <Link href={`/product/${product.id}`}>
-            <h3 className="font-medium hover:text-[#872730] transition-colors">{product.name}</h3>
+          <Link href={`/product/${product.id}`} onClick={handleProductClick}>
+            <h3 className="font-medium text-primary-500 hover:text-primary-400 transition-colors">{product.name}</h3>
           </Link>
-          <p className="font-serif">${product.price}</p>
+          <p className="font-serif text-primary-500">${product.price}</p>
         </div>
         
-        <p className="text-gray-600 text-sm mb-4 line-clamp-2">{product.description}</p>
+        {/* Stock Information */}
+        <div className="mb-2">
+          {product.stock === 0 ? (
+            <span className="text-red-600 text-xs font-medium bg-red-100 px-2 py-1 rounded">Out of Stock</span>
+          ) : product.stock <= product.lowStockThreshold ? (
+            <span className="text-yellow-600 text-xs font-medium bg-yellow-100 px-2 py-1 rounded">
+              Only {product.stock} left
+            </span>
+          ) : (
+            <span className="text-green-600 text-xs font-medium bg-green-100 px-2 py-1 rounded">In Stock</span>
+          )}
+        </div>
+        
+        <p className="text-primary-400 text-sm mb-4 line-clamp-2">{product.description}</p>
         
         <motion.button
-          className="w-full bg-[#872730] text-white py-2 px-4 rounded-full hover:bg-[#872730]/90 transition-colors text-sm"
-          whileHover={{ scale: 1.03 }}
-          whileTap={{ scale: 0.97 }}
+          className={`w-full py-2 px-4 rounded-full transition-colors text-sm font-medium shadow-lg border border-primary-200 ${
+            product.stock === 0 
+              ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
+              : 'bg-ivory-400 text-primary-500 hover:bg-ivory-300'
+          }`}
+          whileHover={product.stock > 0 ? { scale: 1.03 } : {}}
+          whileTap={product.stock > 0 ? { scale: 0.97 } : {}}
           onClick={(e) => {
             e.preventDefault();
-            addItem(product);
+            if (product.stock > 0) {
+              addItem(product);
+            }
           }}
+          disabled={product.stock === 0}
         >
-          Add to Cart
+          {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
         </motion.button>
       </div>
     </motion.div>

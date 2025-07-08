@@ -143,6 +143,17 @@ export default function CheckoutPage() {
       const result = await response.json();
       
       if (!response.ok) {
+        // Handle specific stock errors
+        if (result.stockErrors) {
+          let stockErrorMessage = 'Some items are out of stock:\n\n';
+          result.stockErrors.forEach((error: any) => {
+            stockErrorMessage += `• ${error.item}: Requested ${error.requested}, but only ${error.available} available\n`;
+          });
+          stockErrorMessage += '\nPlease update your cart and try again.';
+          alert(stockErrorMessage);
+          // Optionally redirect to cart page
+          return;
+        }
         throw new Error(result.message || 'Failed to process order');
       }
       
@@ -163,13 +174,13 @@ export default function CheckoutPage() {
   // If cart is empty and not in success state, redirect to shop
   if (items.length === 0 && !isSuccess) {
     return (
-      <div className="min-h-screen bg-stone-50">
+      <div className="min-h-screen bg-primary">
         <Header />
         <div className="container mx-auto px-4 py-16 text-center">
           <h1 className="text-2xl font-serif mb-4">Your Cart is Empty</h1>
           <p className="mb-8">Add some products to your cart before checking out.</p>
           <Link href="/shop">
-            <button className="bg-[#872730] text-white px-6 py-2 rounded-full">
+            <button className="bg-ivory-400 text-primary-500 px-6 py-2 rounded-full hover:bg-ivory-300 transition-colors font-medium shadow-md border border-primary-200">
               Continue Shopping
             </button>
           </Link>
@@ -180,7 +191,7 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="min-h-screen bg-stone-50">
+    <div className="min-h-screen bg-primary">
       <Header />
       
       <main className="container mx-auto px-4 py-8">
@@ -188,35 +199,35 @@ export default function CheckoutPage() {
         <nav className="text-sm mb-8">
           <ol className="flex items-center space-x-2">
             <li>
-              <Link href="/" className="text-gray-500 hover:text-[#872730]">Home</Link>
+              <Link href="/" className="text-ivory/70 hover:text-ivory">Home</Link>
             </li>
-            <li className="text-gray-400">/</li>
+            <li className="text-ivory/50">/</li>
             <li>
-              <Link href="/shop" className="text-gray-500 hover:text-[#872730]">Shop</Link>
+              <Link href="/shop" className="text-ivory/70 hover:text-ivory">Shop</Link>
             </li>
-            <li className="text-gray-400">/</li>
-            <li className="text-[#872730]">Checkout</li>
+            <li className="text-ivory/50">/</li>
+            <li className="text-ivory">Checkout</li>
           </ol>
         </nav>
         
-        <h1 className="text-3xl font-serif text-center mb-8">Checkout</h1>
+        <h1 className="text-3xl font-serif text-center mb-8 text-ivory">Checkout</h1>
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Order Summary */}
           <div className="lg:col-span-1 order-2 lg:order-1">
             <div className="bg-white p-6 rounded-lg shadow-sm">
-              <h2 className="text-xl font-serif mb-4">Order Summary</h2>
+              <h2 className="text-xl font-serif mb-4 text-primary">Order Summary</h2>
               
               <div className="divide-y">
                 {items.map((item) => (
                   <div key={item.id} className="py-4 flex items-center gap-4">
-                    <div className="w-16 h-16 bg-stone-100 rounded-md flex items-center justify-center">
+                    <div className="w-16 h-16 bg-secondary/10 rounded-md flex items-center justify-center">
                       {renderProductImage(item.category, item.name, item.gemColor)}
                     </div>
                     
                     <div className="flex-1">
-                      <h3 className="font-medium text-sm">{item.name}</h3>
-                      <p className="text-gray-600 text-xs">Qty: {item.quantity}</p>
+                      <h3 className="font-medium text-sm text-primary">{item.name}</h3>
+                      <p className="text-primary/70 text-xs">Qty: {item.quantity}</p>
                     </div>
                     
                     <div className="text-right">
@@ -251,7 +262,7 @@ export default function CheckoutPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 {/* First Name */}
                 <div>
-                  <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="firstName" className="block text-sm font-medium text-primary mb-1">
                     First Name *
                   </label>
                   <input
@@ -271,7 +282,7 @@ export default function CheckoutPage() {
                 
                 {/* Last Name */}
                 <div>
-                  <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="lastName" className="block text-sm font-medium text-primary mb-1">
                     Last Name *
                   </label>
                   <input
@@ -291,7 +302,7 @@ export default function CheckoutPage() {
                 
                 {/* Email */}
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="email" className="block text-sm font-medium text-primary mb-1">
                     Email *
                   </label>
                   <input
@@ -311,7 +322,7 @@ export default function CheckoutPage() {
                 
                 {/* Phone */}
                 <div>
-                  <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="phone" className="block text-sm font-medium text-primary mb-1">
                     Phone *
                   </label>
                   <input
@@ -331,7 +342,7 @@ export default function CheckoutPage() {
                 
                 {/* Address */}
                 <div className="md:col-span-2">
-                  <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="address" className="block text-sm font-medium text-primary mb-1">
                     Address *
                   </label>
                   <input
@@ -351,7 +362,7 @@ export default function CheckoutPage() {
                 
                 {/* City */}
                 <div>
-                  <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="city" className="block text-sm font-medium text-primary mb-1">
                     City *
                   </label>
                   <input
@@ -371,7 +382,7 @@ export default function CheckoutPage() {
                 
                 {/* State */}
                 <div>
-                  <label htmlFor="state" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="state" className="block text-sm font-medium text-primary mb-1">
                     State/Province *
                   </label>
                   <input
@@ -391,7 +402,7 @@ export default function CheckoutPage() {
                 
                 {/* Zip Code */}
                 <div>
-                  <label htmlFor="zipCode" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="zipCode" className="block text-sm font-medium text-primary mb-1">
                     ZIP/Postal Code *
                   </label>
                   <input
@@ -411,7 +422,7 @@ export default function CheckoutPage() {
                 
                 {/* Country */}
                 <div>
-                  <label htmlFor="country" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="country" className="block text-sm font-medium text-primary mb-1">
                     Country *
                   </label>
                   <select
@@ -440,14 +451,14 @@ export default function CheckoutPage() {
               
               {/* Payment Section (Simplified) */}
               <h2 className="text-xl font-serif mb-6">Payment Information</h2>
-              <p className="text-gray-500 mb-6">
+              <p className="text-primary/70 mb-6">
                 This is a demo. No actual payment will be processed.
               </p>
               
               <div className="flex justify-center">
                 <motion.button
                   type="submit"
-                  className="w-full bg-[#872730] text-white py-3 rounded-full hover:bg-[#872730]/90 transition-colors"
+                  className="w-full bg-ivory-400 text-primary-500 py-3 rounded-full hover:bg-ivory-300 transition-colors font-medium shadow-lg border border-primary-200"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   disabled={isSubmitting}

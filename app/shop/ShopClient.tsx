@@ -4,15 +4,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import ProductCard from '../../components/ProductCard';
-import { 
-  products, 
-  categories, 
-  subcategories, 
-  getProductsByCategory, 
-  getFeaturedProducts,
-  getNewProducts,
-  getBestsellerProducts
-} from '../../data/products';
+import { Product } from '../../types/product';
 
 export default function ShopClient() {
   const searchParams = useSearchParams();
@@ -20,34 +12,55 @@ export default function ShopClient() {
   
   const [activeCategory, setActiveCategory] = useState('all');
   const [activeSubcategory, setActiveSubcategory] = useState<string | null>(null);
-  const [filteredProducts, setFilteredProducts] = useState(products);
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [sortBy, setSortBy] = useState('default');
+  const [loading, setLoading] = useState(true);
+  
+  // Fetch products from API
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch('/api/products');
+        const result = await response.json();
+        if (result.success) {
+          setAllProducts(result.products);
+        }
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchProducts();
+  }, []);
   
   // Apply filters when category, subcategory, or filter param changes
   useEffect(() => {
-    let result = products;
+    let result = allProducts;
     
     // Apply category filter
     if (activeCategory !== 'all') {
-      result = getProductsByCategory(activeCategory);
+      result = result.filter(product => product.category === activeCategory);
     }
     
     // Apply subcategory filter
     if (activeSubcategory) {
-      result = result.filter(product => product.subcategory === activeSubcategory);
+      result = result.filter((product: Product) => product.subcategory === activeSubcategory);
     }
     
     // Apply URL filter parameter
     if (filterParam) {
       switch (filterParam) {
         case 'featured':
-          result = getFeaturedProducts();
+          result = result.filter(product => product.featured);
           break;
         case 'new':
-          result = getNewProducts();
+          result = result.filter(product => product.new);
           break;
         case 'bestsellers':
-          result = getBestsellerProducts();
+          result = result.filter(product => product.bestseller);
           break;
       }
     }
@@ -69,11 +82,16 @@ export default function ShopClient() {
     }
     
     setFilteredProducts(result);
-  }, [activeCategory, activeSubcategory, sortBy, filterParam]);
+  }, [activeCategory, activeSubcategory, sortBy, filterParam, allProducts]);
   
-  // Get subcategories for active category
+  // Get categories and subcategories from available products
+  const categories = ['all', ...Array.from(new Set(allProducts.map(product => product.category)))];
   const currentSubcategories = activeCategory !== 'all' 
-    ? subcategories[activeCategory as keyof typeof subcategories] || []
+    ? Array.from(new Set(allProducts
+        .filter(product => product.category === activeCategory)
+        .map(product => product.subcategory)
+        .filter((subcategory): subcategory is string => !!subcategory)
+      ))
     : [];
   
   // Animation variants
@@ -95,32 +113,32 @@ export default function ShopClient() {
         transition={{ duration: 0.5 }}
         className="text-center mb-12"
       >
-        <h1 className="text-5xl font-serif mb-4">Shop Collection</h1>
-        <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+        <h1 className="text-5xl font-serif mb-4 text-ivory-400">Shop Collection</h1>
+        <p className="text-xl text-ivory-300 max-w-2xl mx-auto">
           Discover our exquisite collection of handcrafted jewelry, each piece designed to capture timeless elegance.
         </p>
       </motion.div>
       
       {/* Filter and Sort Controls */}
-      <div className="bg-white p-6 rounded-lg shadow-sm mb-8">
+      <div className="bg-ivory-400 p-6 rounded-lg shadow-sm mb-8">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div className="flex-1">
-            <h2 className="text-lg font-medium mb-4">Filter by Category</h2>
+            <h2 className="text-lg font-medium mb-4 text-primary-500">Filter by Category</h2>
             <div className="flex flex-wrap gap-2">
               {categories.map((category) => (
                 <button
-                  key={category.id}
-                  className={`px-4 py-2 text-sm rounded-full transition-colors ${
-                    activeCategory === category.id 
-                      ? 'bg-[#872730] text-white' 
-                      : 'bg-stone-100 text-gray-700 hover:bg-stone-200'
+                  key={category}
+                  className={`px-4 py-2 text-sm rounded-full transition-colors font-medium ${
+                    activeCategory === category 
+                      ? 'bg-secondary-400 text-white shadow-md' 
+                      : 'bg-ivory-400 text-primary-500 hover:bg-ivory-300 border border-primary-200'
                   }`}
                   onClick={() => {
-                    setActiveCategory(category.id);
+                    setActiveCategory(category);
                     setActiveSubcategory(null); // Reset subcategory when changing category
                   }}
                 >
-                  {category.name}
+                  {category === 'all' ? 'All Categories' : category.charAt(0).toUpperCase() + category.slice(1)}
                 </button>
               ))}
             </div>
@@ -128,13 +146,13 @@ export default function ShopClient() {
             {/* Subcategory filters */}
             {currentSubcategories.length > 0 && (
               <div className="mt-4">
-                <h3 className="text-sm font-medium mb-2">Filter by Subcategory</h3>
+                <h3 className="text-sm font-medium mb-2 text-primary-500">Filter by Subcategory</h3>
                 <div className="flex flex-wrap gap-2">
                   <button
-                    className={`px-3 py-1 text-sm rounded-full transition-colors ${
+                    className={`px-3 py-1 text-sm rounded-full transition-colors font-medium ${
                       activeSubcategory === null 
-                        ? 'bg-[#872730] text-white' 
-                        : 'bg-stone-100 text-gray-700 hover:bg-stone-200'
+                        ? 'bg-secondary-400 text-white shadow-md' 
+                        : 'bg-ivory-400 text-primary-500 hover:bg-ivory-300 border border-primary-200'
                     }`}
                     onClick={() => setActiveSubcategory(null)}
                   >
@@ -142,15 +160,15 @@ export default function ShopClient() {
                   </button>
                   {currentSubcategories.map((subcategory) => (
                     <button
-                      key={subcategory.id}
-                      className={`px-3 py-1 text-sm rounded-full transition-colors ${
-                        activeSubcategory === subcategory.id 
-                          ? 'bg-[#872730] text-white' 
-                          : 'bg-stone-100 text-gray-700 hover:bg-stone-200'
+                      key={subcategory}
+                      className={`px-3 py-1 text-sm rounded-full transition-colors font-medium ${
+                        activeSubcategory === subcategory 
+                          ? 'bg-secondary-400 text-white shadow-md' 
+                          : 'bg-ivory-400 text-primary-500 hover:bg-ivory-300 border border-primary-200'
                       }`}
-                      onClick={() => setActiveSubcategory(subcategory.id)}
+                      onClick={() => setActiveSubcategory(subcategory || null)}
                     >
-                      {subcategory.name}
+                      {subcategory ? subcategory.charAt(0).toUpperCase() + subcategory.slice(1) : ''}
                     </button>
                   ))}
                 </div>
@@ -160,12 +178,12 @@ export default function ShopClient() {
           
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
             <div>
-              <label htmlFor="sort-by" className="text-sm text-gray-600 mr-2">Sort by:</label>
+              <label htmlFor="sort-by" className="text-sm text-primary-500 mr-2">Sort by:</label>
               <select 
                 id="sort-by"
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="border border-gray-300 rounded px-2 py-1 text-sm"
+                className="border border-secondary-200 rounded px-2 py-1 text-sm text-primary-500 bg-ivory-300"
               >
                 <option value="default">Featured</option>
                 <option value="price-low">Price: Low to High</option>
@@ -175,7 +193,7 @@ export default function ShopClient() {
               </select>
             </div>
             
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-primary-400">
               Showing {filteredProducts.length} products
             </div>
           </div>
@@ -183,12 +201,17 @@ export default function ShopClient() {
       </div>
       
       {/* Products Grid */}
-      {filteredProducts.length === 0 ? (
+      {loading ? (
         <div className="text-center py-16">
-          <h2 className="text-2xl font-serif mb-4">No Products Found</h2>
-          <p className="text-gray-600 mb-8">Try adjusting your filters to find what you're looking for.</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-secondary-500 mx-auto"></div>
+          <p className="mt-4 text-ivory-300">Loading products...</p>
+        </div>
+      ) : filteredProducts.length === 0 ? (
+        <div className="text-center py-16">
+          <h2 className="text-2xl font-serif mb-4 text-ivory-400">No Products Found</h2>
+          <p className="text-ivory-300 mb-8">Try adjusting your filters to find what you're looking for.</p>
           <button 
-            className="bg-[#872730] text-white px-6 py-2 rounded-full"
+            className="bg-ivory-400 text-primary-500 px-6 py-2 rounded-full hover:bg-ivory-300 transition-colors font-medium shadow-md border border-primary-200"
             onClick={() => {
               setActiveCategory('all');
               setActiveSubcategory(null);

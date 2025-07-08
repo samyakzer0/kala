@@ -1,16 +1,42 @@
 import { EmailTemplate } from '../types/order';
+import nodemailer from 'nodemailer';
 
 // Email service configuration
 // In production, you would use environment variables for these
 const EMAIL_CONFIG = {
-  // For demonstration - replace with actual email service credentials
   service: 'gmail', // or 'sendgrid', 'mailgun', etc.
-  from: 'noreply@kala-jewelry.com',
-  adminEmail: 'admin@kala-jewelry.com'
+  from: process.env.EMAIL_FROM || 'noreply@kala-jewelry.com',
+  adminEmail: process.env.ADMIN_EMAIL || 'admin@kala-jewelry.com',
+  // Gmail SMTP configuration
+  smtp: {
+    host: 'smtp.gmail.com',
+    port: 587,
+    secure: false, // true for 465, false for other ports
+    auth: {
+      user: process.env.EMAIL_USER, // Your Gmail email
+      pass: process.env.EMAIL_PASS  // Your Gmail app password
+    }
+  }
 };
 
-// Simple email sending function for demonstration
-// In production, integrate with actual email service like SendGrid, Mailgun, or Nodemailer
+// Create transporter for sending emails
+let transporter: nodemailer.Transporter | null = null;
+
+function createTransporter() {
+  if (!transporter) {
+    if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+      // Use real SMTP if credentials are provided
+      transporter = nodemailer.createTransport(EMAIL_CONFIG.smtp);
+    } else {
+      // Use test account for development
+      console.log('⚠️ No email credentials provided. Using simulation mode.');
+      transporter = null;
+    }
+  }
+  return transporter;
+}
+
+// Simple email sending function
 export async function sendEmail(
   to: string | string[],
   template: EmailTemplate,
@@ -20,45 +46,48 @@ export async function sendEmail(
   }
 ): Promise<{ success: boolean; messageId?: string; error?: string }> {
   try {
-    // Simulate email sending
-    console.log('📧 Sending email:');
-    console.log('To:', to);
-    console.log('Subject:', template.subject);
-    console.log('From:', options?.from || EMAIL_CONFIG.from);
+    const emailTransporter = createTransporter();
     
-    // In a real implementation, you would use an email service here
-    // Example with SendGrid:
-    /*
-    const sgMail = require('@sendgrid/mail');
-    sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+    if (!emailTransporter) {
+      // Simulate email sending for development
+      console.log('📧 Sending email (simulated):');
+      console.log('To:', to);
+      console.log('Subject:', template.subject);
+      console.log('From:', options?.from || EMAIL_CONFIG.from);
+      console.log('HTML:', template.html.substring(0, 200) + '...');
+      
+      // Simulate delay
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      console.log('✅ Email sent successfully (simulated)');
+      console.log('---');
+      
+      return { 
+        success: true, 
+        messageId: `sim_${Date.now()}_${Math.random().toString(36).substring(7)}` 
+      };
+    }
     
-    const msg = {
-      to: Array.isArray(to) ? to : [to],
+    // Send real email
+    const mailOptions = {
       from: options?.from || EMAIL_CONFIG.from,
+      to: Array.isArray(to) ? to.join(', ') : to,
       subject: template.subject,
       text: template.text,
       html: template.html,
       replyTo: options?.replyTo
     };
     
-    const response = await sgMail.send(msg);
-    return { 
-      success: true, 
-      messageId: response[0].headers['x-message-id'] 
-    };
-    */
+    console.log('📧 Sending real email to:', to);
+    const info = await emailTransporter.sendMail(mailOptions);
     
-    // Simulate delay
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    // For demo purposes, we'll just log and return success
-    console.log('✅ Email sent successfully (simulated)');
-    console.log('---');
+    console.log('✅ Email sent successfully:', info.messageId);
     
     return { 
       success: true, 
-      messageId: `msg_${Date.now()}_${Math.random().toString(36).substring(7)}` 
+      messageId: info.messageId 
     };
+    
   } catch (error) {
     console.error('❌ Error sending email:', error);
     return { 

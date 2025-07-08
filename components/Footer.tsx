@@ -10,25 +10,25 @@ export default function Footer() {
       links: [
         { name: 'Home', href: '/' },
         { name: 'Shop', href: '/shop' },
+        { name: 'Track Order', href: '/track-order' },
         { name: 'About', href: '/about' },
         { name: 'Contact', href: '/about#contact' },
       ]
     },
-   
     {
       title: 'CONNECT WITH US',
       links: [
         { name: 'Instagram', href: '#' },
         { name: 'Facebook', href: '#' },
         { name: 'Pinterest', href: '#' },
-        { name: 'Email', href: '#' },
+        { name: 'Email', href: 'mailto:hello@kala-jewelry.com' },
       ]
     },
   ];
 
   return (
     <motion.footer 
-      className="bg-black text-white py-12 px-6"
+      className="bg-primary-800 text-ivory-400 py-12 px-6"
       initial={{ opacity: 0 }}
       whileInView={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
@@ -38,13 +38,13 @@ export default function Footer() {
         {/* Brand and Tagline */}
         <div className="text-center mb-10">
           <div className="flex justify-center mb-2">
-            <img src="/logo.png" alt="KAMTI" className="h-12 w-auto filter brightness-0 invert" />
+            <img src="/logo.png" alt="KAMTI" className="h-12 w-auto" />
           </div>
-          <p className="text-white/70 text-sm">Your Perfect Jewellery</p>
+          <p className="text-ivory-300 text-sm">Your Perfect Jewellery</p>
         </div>
 
         {/* Footer Sections */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
           {footerSections.map((section, index) => (
             <motion.div 
               key={index}
@@ -53,13 +53,13 @@ export default function Footer() {
               transition={{ delay: index * 0.1, duration: 0.5 }}
               viewport={{ once: true }}
             >
-              <h3 className="text-xs font-medium tracking-wider mb-4">{section.title}</h3>
+              <h3 className="text-xs font-medium tracking-wider mb-4 text-ivory-200">{section.title}</h3>
               <ul className="space-y-2">
                 {section.links.map((link, linkIndex) => (
                   <li key={linkIndex}>
                     <Link 
                       href={link.href} 
-                      className="text-white/70 hover:text-white text-sm transition-colors"
+                      className="text-ivory-300 hover:text-ivory-200 text-sm transition-colors"
                     >
                       {link.name}
                     </Link>
@@ -71,11 +71,11 @@ export default function Footer() {
         </div>
 
         {/* Payment Methods */}
-        <div className="border-t border-white/20 pt-8 text-center">
+        <div className="border-t border-ivory-600 pt-8 text-center">
 
           
           {/* Copyright */}
-          <div className="text-white/50 text-xs">
+          <div className="text-ivory-300 text-xs">
             <p>© {new Date().getFullYear()} KALA Jewellery. All rights reserved.</p>
           </div>
         </div>

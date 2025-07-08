@@ -232,6 +232,16 @@ vercel
 - **Railway**: Connect GitHub repository
 - **DigitalOcean App Platform**: Use Docker or buildpack
 
+### Important Configuration Notes
+
+⚠️ **API Routes Configuration**: This project requires server-side functionality for the e-commerce features. The `output: "export"` configuration in `next.config.ts` has been disabled to enable API routes. This means:
+
+- ✅ Full e-commerce functionality with server-side APIs
+- ✅ Order management and email notifications  
+- ✅ Admin panel with real-time data
+- ❌ Cannot deploy as static files (GitHub Pages, Netlify static)
+- ✅ Can deploy to Vercel, Netlify Functions, or any Node.js hosting
+
 ## Security Considerations
 
 1. **Admin Authentication**
