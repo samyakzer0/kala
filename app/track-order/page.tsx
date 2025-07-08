@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import Header from '../../components/Header';
@@ -34,6 +34,25 @@ interface Order {
 }
 
 export default function TrackOrderPage() {
+  return (
+    <>
+      <Header />
+      <Suspense fallback={
+        <div className="min-h-screen bg-ivory-500 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500 mx-auto mb-4"></div>
+            <p className="text-primary-600">Loading order tracking...</p>
+          </div>
+        </div>
+      }>
+        <TrackOrderContent />
+      </Suspense>
+      <Footer />
+    </>
+  );
+}
+
+function TrackOrderContent() {
   const searchParams = useSearchParams();
   const [orderId, setOrderId] = useState('');
   const [email, setEmail] = useState('');
@@ -148,9 +167,7 @@ export default function TrackOrderPage() {
   };
 
   return (
-    <>
-      <Header />
-      <div className="min-h-screen bg-primary-500 py-12">
+    <div className="min-h-screen bg-primary-500 py-12">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <motion.div 
@@ -385,8 +402,6 @@ export default function TrackOrderPage() {
           </div>
         </motion.div>
       </div>
-      </div>
-      <Footer />
-    </>
+    </div>
   );
 }
