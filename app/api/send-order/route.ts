@@ -3,14 +3,13 @@ import type { NextRequest } from 'next/server';
 import { Order } from '../../../types/order';
 import { 
   generateOrderId, 
-  generateAdminOrderEmail, 
-  generateCustomerConfirmationEmail,
   ADMIN_CONFIG 
 } from '../../../utils/order';
 import { 
-  sendOrderNotificationToAdmin, 
-  sendOrderConfirmationToCustomer 
-} from '../../../utils/email';
+  sendOrderConfirmation, 
+  sendAdminNotification,
+  validateEmailConfiguration 
+} from '../../../utils/emailService';
 import { createOrder } from '../../../utils/orderStorage';
 import { isProductInStock, decreaseProductStock, getProductById } from '../../../utils/productStorage';
 import { checkRateLimit, RATE_LIMITS, createRateLimitHeaders } from '../../../utils/rateLimit';
@@ -131,44 +130,52 @@ export async function POST(request: NextRequest) {
       await trackProductOrder(item.id, item.quantity);
     }
     
-    // Generate email templates
-    const adminEmailTemplate = generateAdminOrderEmail(order);
-    const customerEmailTemplate = generateCustomerConfirmationEmail(order);
+    // Check email configuration
+    const emailConfig = validateEmailConfiguration();
+    if (!emailConfig.isConfigured) {
+      console.warn('⚠️ Email not configured properly:', emailConfig.issues);
+      console.warn('📧 Emails will be simulated only');
+    } else {
+      console.log('✅ Email configured with provider:', emailConfig.provider);
+    }
     
-    // Send emails
-    const adminEmailResult = await sendOrderNotificationToAdmin(
-      ADMIN_CONFIG.email,
-      adminEmailTemplate,
-      order.customer.email
-    );
+    // Send emails using enhanced email service
+    console.log('📧 Sending order confirmation to customer...');
+    const customerEmailResult = await sendOrderConfirmation(order);
     
-    const customerEmailResult = await sendOrderConfirmationToCustomer(
-      order.customer.email,
-      customerEmailTemplate
-    );
+    console.log('📧 Sending order notification to admin...');
+    const adminEmailResult = await sendAdminNotification(order);
     
     // Log results for debugging
     console.log('📋 Order created:', order.id);
-    console.log('📧 Admin email result:', adminEmailResult);
     console.log('📧 Customer email result:', customerEmailResult);
+    console.log('📧 Admin email result:', adminEmailResult);
     
     // Check if emails were sent successfully
-    if (!adminEmailResult.success) {
-      console.error('Failed to send admin notification:', adminEmailResult.error);
+    if (!customerEmailResult.success) {
+      console.error('❌ Failed to send customer confirmation:', customerEmailResult.error);
       // Continue anyway - order is still created
+    } else {
+      console.log('✅ Customer confirmation sent successfully');
     }
     
-    if (!customerEmailResult.success) {
-      console.error('Failed to send customer confirmation:', customerEmailResult.error);
-      // Continue anyway - order is still created
+    if (!adminEmailResult.success) {
+      console.error('❌ Failed to send admin notification:', adminEmailResult.error);
+      // Continue anyway - order is still created  
+    } else {
+      console.log('✅ Admin notification sent successfully');
     }
     
     return NextResponse.json({ 
       success: true,
-      message: 'Order received successfully',
+      message: 'Order received successfully! Check your email for confirmation.',
       orderId: order.id,
-      status: order.status
-    });
+      status: order.status,
+      emailStatus: {
+        customerEmail: customerEmailResult.success,
+        adminEmail: adminEmailResult.success
+      }
+    }, { headers: rateLimitHeaders });
     
   } catch (error) {
     console.error('Error processing order:', error);
