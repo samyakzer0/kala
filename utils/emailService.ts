@@ -43,7 +43,7 @@ function createTransporter(): nodemailer.Transporter | null {
     // Try Gmail SMTP first
     if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
       console.log('📧 Using Gmail SMTP for email delivery');
-      return nodemailer.createTransporter(EMAIL_CONFIG.smtp);
+      return nodemailer.createTransport(EMAIL_CONFIG.smtp);
     }
     
     // TODO: Add SendGrid and Mailgun transporters here when needed
