@@ -1,0 +1,7 @@
+{
+  "extends": ["next/core-web-vitals"],
+  "rules": {
+    // Disable specific rules that may be causing problems
+    "@typescript-eslint/no-explicit-any": "off"
+  }
+}

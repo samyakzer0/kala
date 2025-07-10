@@ -85,7 +85,7 @@ export async function PATCH(request: NextRequest) {
     }
     
     // Send appropriate email notifications
-    let emailResult = { success: true, messageId: undefined };
+    let emailResult: { success: boolean; messageId?: string; error?: string } = { success: true };
     
     try {
       if (status === 'approved') {
