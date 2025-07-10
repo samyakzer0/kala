@@ -12,8 +12,16 @@ export interface ProductAnalytics {
   popularityScore: number; // Calculated score based on views and orders
 }
 
+// Category analytics interface
+export interface CategoryAnalytics {
+  categoryId: string;
+  views: number;
+  lastViewed: string;
+}
+
 interface AnalyticsData {
   products: Record<string, ProductAnalytics>;
+  categories: Record<string, CategoryAnalytics>;
   lastUpdated: string;
 }
 
@@ -32,6 +40,7 @@ async function ensureAnalyticsFile(): Promise<void> {
     // Create initial analytics file
     const initialData: AnalyticsData = {
       products: {},
+      categories: {},
       lastUpdated: new Date().toISOString()
     };
     await fs.writeFile(ANALYTICS_FILE, JSON.stringify(initialData, null, 2));
@@ -43,11 +52,19 @@ async function loadAnalytics(): Promise<AnalyticsData> {
   try {
     await ensureAnalyticsFile();
     const data = await fs.readFile(ANALYTICS_FILE, 'utf-8');
-    return JSON.parse(data);
+    const parsedData = JSON.parse(data);
+    
+    // Ensure categories property exists for backward compatibility
+    if (!parsedData.categories) {
+      parsedData.categories = {};
+    }
+    
+    return parsedData;
   } catch (error) {
     console.error('Error loading analytics:', error);
     return {
       products: {},
+      categories: {},
       lastUpdated: new Date().toISOString()
     };
   }
@@ -127,6 +144,29 @@ export async function trackProductOrder(productId: string, quantity: number = 1)
   }
 }
 
+// Track category view
+export async function trackCategoryView(categoryId: string): Promise<void> {
+  try {
+    const analytics = await loadAnalytics();
+    const now = new Date().toISOString();
+    
+    if (analytics.categories[categoryId]) {
+      analytics.categories[categoryId].views += 1;
+      analytics.categories[categoryId].lastViewed = now;
+    } else {
+      analytics.categories[categoryId] = {
+        categoryId,
+        views: 1,
+        lastViewed: now
+      };
+    }
+    
+    await saveAnalytics(analytics);
+  } catch (error) {
+    console.error('Error tracking category view:', error);
+  }
+}
+
 // Get most popular products
 export async function getMostPopularProducts(limit: number = 6): Promise<ProductAnalytics[]> {
   try {
@@ -163,6 +203,23 @@ export async function getTrendingProducts(limit: number = 6, daysBack: number = 
     return recentProducts;
   } catch (error) {
     console.error('Error getting trending products:', error);
+    return [];
+  }
+}
+
+// Get most viewed categories
+export async function getMostViewedCategories(limit: number = 4): Promise<CategoryAnalytics[]> {
+  try {
+    const analytics = await loadAnalytics();
+    
+    // Sort by views (descending)
+    const sortedCategories = Object.values(analytics.categories || {})
+      .sort((a, b) => b.views - a.views)
+      .slice(0, limit);
+    
+    return sortedCategories;
+  } catch (error) {
+    console.error('Error getting popular categories:', error);
     return [];
   }
 }

@@ -15,7 +15,8 @@ type ProductCardProps = {
 };
 
 export default function ProductCard({ product }: ProductCardProps) {
-  const [isHovered, setIsHovered] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_isHovered, setIsHovered] = useState(false); // Prefixed with underscore as it's intentionally unused
   const { addItem } = useCart();
   
   // Track product view when clicked

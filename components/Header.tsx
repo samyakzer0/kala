@@ -31,7 +31,10 @@ export default function Header() {
     setIsMenuOpen(!isMenuOpen);
   };
 
-  const menuItems = [
+  // Menu items defined but not directly used in the component
+  // Keeping for future use and documentation purposes
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const _menuItems = [
     { name: 'New Arrivals', path: '/shop?filter=new' },
     { name: 'Bestsellers', path: '/shop?filter=bestseller' },
     ...categories.filter(cat => cat.id !== 'all').map(cat => ({
@@ -48,6 +51,7 @@ export default function Header() {
         <div className="flex items-center justify-between">
           <div className="text-ivory-400 text-2xl font-serif">
             <Link href="/" className="flex items-center">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/logo.png" alt="KAMTI" className="h-16 w-auto" />
             </Link>
           </div>
@@ -153,6 +157,7 @@ export default function Header() {
         }`}>
           <div className="flex items-center justify-between p-6 border-b bg-primary-50">
             <div className="text-primary-500 text-xl font-serif">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/logo.png" alt="KAMTI" className="h-10 w-auto" />
             </div>
             <button 

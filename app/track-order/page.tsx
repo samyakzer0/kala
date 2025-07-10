@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import Header from '../../components/Header';
@@ -61,19 +61,8 @@ function TrackOrderContent() {
   const [error, setError] = useState('');
   const [searchMethod, setSearchMethod] = useState<'orderId' | 'email'>('orderId');
 
-  // Pre-populate order ID if passed as query parameter
-  useEffect(() => {
-    const orderIdParam = searchParams?.get('orderId');
-    if (orderIdParam) {
-      setOrderId(orderIdParam);
-      // Auto-search if order ID is provided
-      if (orderIdParam.trim()) {
-        handleSearch(orderIdParam.trim());
-      }
-    }
-  }, [searchParams]);
-
-  const handleSearch = async (prefilledOrderId?: string) => {
+  // Define handleSearch with useCallback to make it available for the effect dependency
+  const handleSearch = useCallback(async (prefilledOrderId?: string) => {
     const searchOrderId = prefilledOrderId || orderId.trim();
     const searchEmail = email.trim();
     
@@ -116,7 +105,19 @@ function TrackOrderContent() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [orderId, email, searchMethod]);
+  
+  // Pre-populate order ID if passed as query parameter
+  useEffect(() => {
+    const orderIdParam = searchParams?.get('orderId');
+    if (orderIdParam) {
+      setOrderId(orderIdParam);
+      // Auto-search if order ID is provided
+      if (orderIdParam.trim()) {
+        handleSearch(orderIdParam.trim());
+      }
+    }
+  }, [searchParams, handleSearch]);
 
   const handleSearchClick = () => {
     handleSearch();
@@ -244,7 +245,7 @@ function TrackOrderContent() {
                   className="w-full px-4 py-3 border border-primary-300 rounded-md focus:ring-2 focus:ring-secondary-500 focus:border-transparent"
                 />
                 <p className="text-sm text-primary-500 mt-1">
-                  We'll show your most recent order for this email address.
+                  We&apos;ll show your most recent order for this email address.
                 </p>
               </div>
             )}

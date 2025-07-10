@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
@@ -117,7 +117,7 @@ export default function AdminPanel() {
     }
   };
 
-  const fetchLowStockProducts = async () => {
+  const fetchLowStockProducts = useCallback(async () => {
     try {
       const response = await fetch(`/api/admin/inventory?adminKey=${encodeURIComponent(adminKey)}&action=low-stock`);
       const result = await response.json();
@@ -128,10 +128,12 @@ export default function AdminPanel() {
     } catch (error) {
       console.error('Error fetching low stock products:', error);
     }
-  };
+  }, [adminKey]);
 
-  // Seed database with sample products
-  const handleSeedDatabase = async () => {
+  // Seed database with sample products - defined but not used in UI currently
+  // Keeping for future implementation or documentation
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const _handleSeedDatabase = async () => {
     if (!confirm('This will add sample products and analytics data. Continue?')) {
       return;
     }
@@ -385,7 +387,7 @@ export default function AdminPanel() {
     if (isAuthenticated && activeTab === 'inventory') {
       fetchLowStockProducts();
     }
-  }, [activeTab, isAuthenticated]);
+  }, [activeTab, isAuthenticated, fetchLowStockProducts]);
 
   const handleOrderAction = async (orderId: string, action: 'approved' | 'rejected', notes?: string) => {
     setProcessingOrderId(orderId);
@@ -731,6 +733,7 @@ export default function AdminPanel() {
                           {/* Current/Preview Image */}
                           {(imagePreview || (editingProduct && editingProduct.image)) && (
                             <div className="relative w-32 h-32 border-2 border-primary-300 rounded-lg overflow-hidden">
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
                               <img
                                 src={imagePreview || editingProduct?.image}
                                 alt="Product preview"
@@ -899,6 +902,7 @@ export default function AdminPanel() {
                   >
                     <div className="aspect-square bg-ivory-200 rounded-lg mb-4 flex items-center justify-center">
                       {product.image ? (
+                        /* eslint-disable-next-line @next/next/no-img-element */
                         <img src={product.image} alt={product.name} className="w-full h-full object-cover rounded-lg" />
                       ) : (
                         <div className="text-primary-500 text-4xl">📷</div>

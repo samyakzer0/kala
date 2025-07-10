@@ -3,7 +3,7 @@ import type { NextRequest } from 'next/server';
 import { Order } from '../../../types/order';
 import { 
   generateOrderId, 
-  ADMIN_CONFIG 
+  // ADMIN_CONFIG - removed unused import
 } from '../../../utils/order';
 import { 
   sendOrderConfirmation, 

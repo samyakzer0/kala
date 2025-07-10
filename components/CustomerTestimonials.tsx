@@ -144,7 +144,7 @@ export default function CustomerTestimonials() {
                       transition={{ delay: 0.4, duration: 0.6 }}
                       className="text-xl md:text-2xl text-primary-600 font-medium leading-relaxed mb-6 italic"
                     >
-                      "{testimonials[currentSlide].quote}"
+                      &quot;{testimonials[currentSlide].quote}&quot;
                     </motion.blockquote>
 
                     {/* Stars */}

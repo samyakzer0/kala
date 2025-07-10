@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import ProductCard from '../../components/ProductCard';
+import PopularCategories from '../../components/PopularCategories';
 import { Product } from '../../types/product';
 
 export default function ShopClient() {
@@ -119,6 +120,9 @@ export default function ShopClient() {
         </p>
       </motion.div>
       
+      {/* Popular Categories */}
+      <PopularCategories />
+      
       {/* Filter and Sort Controls */}
       <div className="bg-ivory-400 p-6 rounded-lg shadow-sm mb-8">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
@@ -209,7 +213,7 @@ export default function ShopClient() {
       ) : filteredProducts.length === 0 ? (
         <div className="text-center py-16">
           <h2 className="text-2xl font-serif mb-4 text-ivory-400">No Products Found</h2>
-          <p className="text-ivory-300 mb-8">Try adjusting your filters to find what you're looking for.</p>
+          <p className="text-ivory-300 mb-8">Try adjusting your filters to find what you&apos;re looking for.</p>
           <button 
             className="bg-ivory-400 text-primary-500 px-6 py-2 rounded-full hover:bg-ivory-300 transition-colors font-medium shadow-md border border-primary-200"
             onClick={() => {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import Header from '../../../components/Header';
@@ -25,36 +25,8 @@ export default function CategoryClient({
   const [allProducts, setAllProducts] = useState<Product[]>(initialProducts);
   const [loading, setLoading] = useState(false);
   
-  // Fetch products from the API
-  const fetchProducts = async () => {
-    setLoading(true);
-    try {
-      const response = await fetch('/api/products');
-      const result = await response.json();
-      
-      if (result.success) {
-        const categoryProducts = result.products.filter((product: Product) => 
-          product.category === categoryId && product.isActive
-        );
-        setAllProducts(categoryProducts);
-        applyFilters(categoryProducts);
-      }
-    } catch (error) {
-      console.error('Error fetching products:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Get unique subcategories for this category
-  const currentSubcategories = [...new Set(
-    allProducts
-      .filter(product => product.subcategory && product.subcategory.trim())
-      .map(product => product.subcategory!)
-  )].sort();
-  
   // Apply filters and sorting
-  const applyFilters = (productsToFilter: Product[] = allProducts) => {
+  const applyFilters = useCallback((productsToFilter: Product[] = allProducts) => {
     let result = [...productsToFilter];
     
     // Apply subcategory filter
@@ -82,17 +54,60 @@ export default function CategoryClient({
     }
     
     setProducts(result);
-  };
-
-  // Apply filters when subcategory or sort changes
-  useEffect(() => {
-    applyFilters();
   }, [activeSubcategory, sortBy, allProducts]);
 
-  // Fetch products on mount
+  // Get unique subcategories for this category
+  const currentSubcategories = [...new Set(
+    allProducts
+      .filter(product => product.subcategory && product.subcategory.trim())
+      .map(product => product.subcategory!)
+  )].sort();
+  
+  // Fetch products from the API
+  const fetchProducts = useCallback(async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('/api/products');
+      const result = await response.json();
+      
+      if (result.success) {
+        const categoryProducts = result.products.filter((product: Product) => 
+          product.category === categoryId && product.isActive
+        );
+        setAllProducts(categoryProducts);
+        applyFilters(categoryProducts);
+      }
+    } catch (error) {
+      console.error('Error fetching products:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [categoryId, applyFilters]);
+
+  // Apply filters when filters change
+  useEffect(() => {
+    applyFilters();
+  }, [applyFilters]);
+
+  // Fetch products on mount and track category view
   useEffect(() => {
     fetchProducts();
-  }, [categoryId]);
+    
+    // Track category view
+    const trackCategory = async () => {
+      try {
+        await fetch('/api/track-category-view', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ categoryId })
+        });
+      } catch (error) {
+        console.error('Error tracking category view:', error);
+      }
+    };
+    
+    trackCategory();
+  }, [fetchProducts, categoryId]);
   
   // Animation variants
   const containerVariants = {
@@ -199,7 +214,7 @@ export default function CategoryClient({
         {products.length === 0 ? (
           <div className="text-center py-16">
             <h2 className="text-2xl font-serif mb-4 text-primary-700">No Products Found</h2>
-            <p className="text-primary-600 mb-8">Try adjusting your filters to find what you're looking for.</p>
+            <p className="text-primary-600 mb-8">Try adjusting your filters to find what you&apos;re looking for.</p>
             <button 
               className="bg-secondary-500 text-white px-6 py-2 rounded-full hover:bg-secondary-600 transition-colors"
               onClick={() => {

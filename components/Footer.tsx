@@ -38,6 +38,7 @@ export default function Footer() {
         {/* Brand and Tagline */}
         <div className="text-center mb-10">
           <div className="flex justify-center mb-2">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/logo.png" alt="KAMTI" className="h-12 w-auto" />
           </div>
           <p className="text-ivory-300 text-sm">Your Perfect Jewellery</p>

@@ -209,7 +209,7 @@ export default function AboutPage() {
               transition={{ delay: 0.4, duration: 0.5 }}
               viewport={{ once: true }}
             >
-              We'd love to hear from you. Whether you have a question about our products, need assistance with an order,
+              We&apos;d love to hear from you. Whether you have a question about our products, need assistance with an order,
               or just want to say hello, our team is here to help.
             </motion.p>
             

@@ -14,6 +14,7 @@ export default function IntroSection() {
       
       <div className="mt-16 max-w-6xl mx-auto">
         <div className="aspect-[16/9] rounded-lg overflow-hidden">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img 
             src="/images/workshop/craftsman.jpg"
             alt="Skilled Jewelry Craftsman at Work"

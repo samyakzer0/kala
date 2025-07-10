@@ -1,4 +1,11 @@
 {
   "products": {},
-  "lastUpdated": "2025-07-08T11:21:50.989Z"
+  "lastUpdated": "2025-07-10T12:45:30.968Z",
+  "categories": {
+    "bracelets": {
+      "categoryId": "bracelets",
+      "views": 47,
+      "lastViewed": "2025-07-10T12:45:30.968Z"
+    }
+  }
 }

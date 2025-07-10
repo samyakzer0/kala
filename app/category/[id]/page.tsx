@@ -10,18 +10,18 @@ const categories = [
 ];
 
 // Generate static params for all category IDs
-export async function generateStaticParams() {
+export function generateStaticParams() {
   return categories.map((category) => ({
     id: category.id,
   }));
 }
 
-export default async function CategoryPage({ 
-  params 
-}: { 
-  params: Promise<{ id: string }> 
-}) {
-  const { id } = await params;
+type Props = {
+  params: { id: string }
+}
+
+export default function CategoryPage({ params }: Props) {
+  const { id } = params;
   
   // Check if category exists
   const category = categories.find(cat => cat.id === id);

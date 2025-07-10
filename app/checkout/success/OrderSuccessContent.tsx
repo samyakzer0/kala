@@ -157,7 +157,7 @@ export default function OrderSuccessContent() {
               
               <div className="border-t pt-6">
                 <p className="text-primary/80 mb-6">
-                  We've sent a confirmation email to <strong>{orderInfo.customer.email}</strong> with your order details.
+                  We&apos;ve sent a confirmation email to <strong>{orderInfo.customer.email}</strong> with your order details.
                   {orderInfo.status === 'pending' && (
                     ' You will receive another email once your order has been approved and is ready to ship.'
                   )}
@@ -167,15 +167,15 @@ export default function OrderSuccessContent() {
           ) : (
             <div>
               <p className="text-primary/80 mb-6">
-                Your order has been received and is being processed. We've sent a confirmation email with your order details.
+                Your order has been received and is being processed. We&apos;ve sent a confirmation email with your order details.
               </p>
               <div className="bg-secondary/10 p-6 rounded-lg mb-6">
                 <h2 className="text-xl font-medium mb-2 text-primary">What happens next?</h2>
                 <div className="text-left space-y-2 text-primary">
                   <p>1. Our team will review your order</p>
-                  <p>2. You'll receive an email confirmation when approved</p>
+                  <p>2. You&apos;ll receive an email confirmation when approved</p>
                   <p>3. Your jewelry will be carefully prepared and shipped</p>
-                  <p>4. You'll receive tracking information via email</p>
+                  <p>4. You&apos;ll receive tracking information via email</p>
                 </div>
               </div>
             </div>

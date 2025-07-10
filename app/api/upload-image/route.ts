@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
     const buffer = Buffer.from(bytes);
     
     // Validate file signature (magic bytes)
-    const fileSignature = buffer.subarray(0, 12); // Extended for WebP validation
+    // const fileSignature = buffer.subarray(0, 12); // Removed unused variable
     const isValidImage = validateImageSignature(buffer, file.type);
     
     if (!isValidImage) {
@@ -123,7 +123,7 @@ export async function POST(request: NextRequest) {
     }
     try {
       await mkdir(imagesDir, { recursive: true });
-    } catch (error) {
+    } catch (/* eslint-disable-line @typescript-eslint/no-unused-vars */ _error) {
       // Directory might already exist, ignore error
     }
     

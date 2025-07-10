@@ -17,6 +17,7 @@ export default function HeroSection() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16">
           <div className="text-center">
             <div className="aspect-square mb-4 rounded-lg overflow-hidden">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img 
                 src="/images/bracelets/bracelet.jpg"
                 alt="Elegant Bracelets"
@@ -28,6 +29,7 @@ export default function HeroSection() {
           
           <div className="text-center">
             <div className="aspect-square mb-4 rounded-lg overflow-hidden">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img 
                 src="/images/necklaces/necklace.jpg"
                 alt="Beautiful Pendants"
@@ -39,6 +41,7 @@ export default function HeroSection() {
           
           <div className="text-center">
             <div className="aspect-square mb-4 rounded-lg overflow-hidden">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img 
                 src="/images/rings/rings.jpg"
                 alt="Stunning Rings"

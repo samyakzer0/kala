@@ -7,7 +7,7 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import HeroSection from '../components/HeroSection';
 import IntroSection from '../components/IntroSection';
-import SpotlightRing from '../components/SpotlightRing';
+// import SpotlightRing from '../components/SpotlightRing'; // Removed unused import
 import RingPlaceholder from '../components/RingPlaceholder';
 import NecklacePlaceholder from '../components/NecklacePlaceholder';
 import EarringPlaceholder from '../components/EarringPlaceholder';
@@ -26,7 +26,10 @@ interface ProductWithAnalytics extends Product {
 
 export default function Home() {
   const { scrollYProgress } = useScroll();
-  const opacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
+  // Opacity transform defined but not currently used in component
+  // Keeping for potential future animation enhancements
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const _opacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
   const [popularProducts, setPopularProducts] = useState<ProductWithAnalytics[]>([]);
   const [loading, setLoading] = useState(true);

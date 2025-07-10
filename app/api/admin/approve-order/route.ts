@@ -3,7 +3,7 @@ import type { NextRequest } from 'next/server';
 import { getOrderById, updateOrderStatus } from '../../../../utils/orderStorage';
 import { 
   generateCustomerApprovalEmail,
-  ADMIN_CONFIG 
+  // ADMIN_CONFIG - removed unused import
 } from '../../../../utils/order';
 import { sendApprovalNotificationToCustomer } from '../../../../utils/email';
 

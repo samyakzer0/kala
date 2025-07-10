@@ -56,7 +56,8 @@ export async function DELETE(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { action, orderIds, adminKey } = body;
+    const { action, adminKey } = body;
+    // const { orderIds } - removed unused variable
     
     // Simple admin authentication
     const expectedAdminKey = process.env.ADMIN_KEY || 'kala-admin-2024';

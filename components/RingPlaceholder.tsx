@@ -5,7 +5,7 @@ import Image from 'next/image';
 
 interface RingPlaceholderProps {
   name: string;
-  color?: string;
+  color?: string; // Kept for backward compatibility
   gemColor?: string;
   className?: string;
   imageSrc?: string;
@@ -13,11 +13,14 @@ interface RingPlaceholderProps {
 
 export default function RingPlaceholder({
   name,
-  color = '#FFD700', // Default gold color
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  color = '#FFD700', // Default gold color, not directly used but kept for props type
   gemColor,
   className = '',
   imageSrc = '/images/rings/rings.jpg',
 }: RingPlaceholderProps) {
+  // Using _ prefix with variables will cause TypeScript errors with destructuring
+  // We'll just not reference the variable instead
   // Determine gem color based on name if not provided
   let actualGemColor = gemColor;
   if (!actualGemColor) {

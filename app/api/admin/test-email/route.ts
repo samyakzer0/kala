@@ -3,7 +3,7 @@ import type { NextRequest } from 'next/server';
 import { 
   sendEmail, 
   validateEmailConfiguration,
-  EmailTemplates 
+  // EmailTemplates - removed unused import 
 } from '../../../../utils/emailService';
 import { validateAdminKey, getClientIP } from '../../../../utils/auth';
 
