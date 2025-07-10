@@ -46,6 +46,13 @@ export const RATE_LIMITS = {
     maxRequests: 5,
     windowMs: 10 * 60 * 1000, // 10 minutes
     message: 'Too many order attempts, please try again later'
+  },
+  
+  // Admin actions
+  ADMIN: {
+    maxRequests: 20,
+    windowMs: 5 * 60 * 1000, // 5 minutes
+    message: 'Too many admin actions, please try again later'
   }
 };
 
