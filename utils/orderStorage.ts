@@ -53,7 +53,12 @@ export async function getOrderById(orderId: string): Promise<Order | null> {
 export async function updateOrderStatus(
   orderId: string, 
   status: Order['status'],
-  adminNotes?: string
+  additionalFields?: {
+    adminNotes?: string;
+    approvedAt?: string;
+    deliveredAt?: string;
+    deliveryNotes?: string;
+  }
 ): Promise<Order | null> {
   const orders = await loadOrders();
   const orderIndex = orders.findIndex(order => order.id === orderId);
@@ -63,10 +68,25 @@ export async function updateOrderStatus(
   }
   
   orders[orderIndex].status = status;
-  if (adminNotes) {
-    orders[orderIndex].adminNotes = adminNotes;
+  
+  // Apply additional fields if provided
+  if (additionalFields) {
+    if (additionalFields.adminNotes) {
+      orders[orderIndex].adminNotes = additionalFields.adminNotes;
+    }
+    if (additionalFields.approvedAt) {
+      orders[orderIndex].approvedAt = additionalFields.approvedAt;
+    }
+    if (additionalFields.deliveredAt) {
+      (orders[orderIndex] as any).deliveredAt = additionalFields.deliveredAt;
+    }
+    if (additionalFields.deliveryNotes) {
+      (orders[orderIndex] as any).deliveryNotes = additionalFields.deliveryNotes;
+    }
   }
-  if (status === 'approved') {
+  
+  // Backward compatibility: set approvedAt if status is approved and not already set
+  if (status === 'approved' && !orders[orderIndex].approvedAt && !additionalFields?.approvedAt) {
     orders[orderIndex].approvedAt = new Date().toISOString();
   }
   

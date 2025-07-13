@@ -34,7 +34,7 @@ interface Order {
 }
 
 export default function AdminPanel() {
-  const [activeTab, setActiveTab] = useState<'orders' | 'products' | 'inventory'>('orders');
+  const [activeTab, setActiveTab] = useState<'orders' | 'products' | 'inventory' | 'emails'>('orders');
   const [orders, setOrders] = useState<Order[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -427,6 +427,98 @@ export default function AdminPanel() {
     }
   };
 
+  // NEW: Handle marking order as delivered
+  const handleMarkAsDelivered = async (orderId: string, deliveryNotes?: string) => {
+    setProcessingOrderId(orderId);
+    
+    try {
+      const response = await fetch('/api/admin/mark-delivered', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          orderId,
+          deliveryNotes,
+          adminKey
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        // Update local state
+        setOrders(prev => prev.map(order => 
+          order.id === orderId 
+            ? { ...order, status: 'delivered', deliveredAt: new Date().toISOString(), deliveryNotes }
+            : order
+        ));
+        alert('Order marked as delivered successfully!');
+      } else {
+        alert(`Failed to mark order as delivered: ${result.message}`);
+      }
+    } catch (error) {
+      console.error('Error marking order as delivered:', error);
+      alert('Error marking order as delivered. Please try again.');
+    } finally {
+      setProcessingOrderId(null);
+    }
+  };
+
+  // NEW: Handle manual email sending
+  const handleSendManualEmail = async (to: string, subject: string, message: string, isHtml: boolean = false) => {
+    setLoading(true);
+    
+    try {
+      const response = await fetch('/api/admin/send-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          to,
+          subject,
+          message,
+          isHtml,
+          bccAdmin: true,
+          adminKey
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        alert('Email sent successfully!');
+        return true;
+      } else {
+        alert(`Failed to send email: ${result.message}`);
+        return false;
+      }
+    } catch (error) {
+      console.error('Error sending email:', error);
+      alert('Error sending email. Please try again.');
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // NEW: Show manual email dialog
+  const showManualEmailDialog = (customerEmail?: string) => {
+    const to = customerEmail || prompt('Enter recipient email address:');
+    if (!to) return;
+
+    const subject = prompt('Enter email subject:');
+    if (!subject) return;
+
+    const message = prompt('Enter email message:');
+    if (!message) return;
+
+    const useHtml = confirm('Is this HTML content? Click OK for HTML, Cancel for plain text.');
+    
+    handleSendManualEmail(to, subject, message, useHtml);
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'pending':
@@ -502,7 +594,8 @@ export default function AdminPanel() {
               {[
                 { id: 'orders', label: 'Orders' },
                 { id: 'products', label: 'Products' },
-                { id: 'inventory', label: 'Inventory' }
+                { id: 'inventory', label: 'Inventory' },
+                { id: 'emails', label: 'Send Email' }
               ].map((tab) => (
                 <button
                   key={tab.id}
@@ -625,6 +718,52 @@ export default function AdminPanel() {
                             className="bg-red-500 text-white px-6 py-2 rounded-full hover:bg-red-600 disabled:opacity-50 font-medium shadow-lg"
                           >
                             Reject Order
+                          </button>
+                        </div>
+                      )}
+
+                      {order.status === 'approved' && (
+                        <div className="flex gap-4">
+                          <button
+                            onClick={() => {
+                              const notes = prompt('Delivery notes (optional):');
+                              handleMarkAsDelivered(order.id, notes || undefined);
+                            }}
+                            disabled={processingOrderId === order.id}
+                            className="bg-purple-500 text-white px-6 py-2 rounded-full hover:bg-purple-600 disabled:opacity-50 font-medium shadow-lg"
+                          >
+                            {processingOrderId === order.id ? 'Processing...' : 'Mark as Delivered'}
+                          </button>
+                          <button
+                            onClick={() => showManualEmailDialog(order.customer.email)}
+                            className="bg-blue-500 text-white px-6 py-2 rounded-full hover:bg-blue-600 font-medium shadow-lg"
+                          >
+                            Send Email
+                          </button>
+                        </div>
+                      )}
+
+                      {order.status === 'delivered' && (
+                        <div className="flex gap-4">
+                          <div className="bg-green-100 text-green-800 px-4 py-2 rounded-full font-medium">
+                            ✅ Order Delivered
+                          </div>
+                          <button
+                            onClick={() => showManualEmailDialog(order.customer.email)}
+                            className="bg-blue-500 text-white px-6 py-2 rounded-full hover:bg-blue-600 font-medium shadow-lg"
+                          >
+                            Send Email
+                          </button>
+                        </div>
+                      )}
+
+                      {(order.status === 'rejected' || order.status === 'shipped') && (
+                        <div className="flex gap-4">
+                          <button
+                            onClick={() => showManualEmailDialog(order.customer.email)}
+                            className="bg-blue-500 text-white px-6 py-2 rounded-full hover:bg-blue-600 font-medium shadow-lg"
+                          >
+                            Send Email
                           </button>
                         </div>
                       )}
@@ -1074,6 +1213,170 @@ export default function AdminPanel() {
                       ))}
                     </tbody>
                   </table>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Emails Tab */}
+          {activeTab === 'emails' && (
+            <div>
+              <div className="bg-ivory-100 min-h-screen p-8">
+                <h2 className="text-xl font-semibold text-ivory-400 mb-6">Send Manual Email</h2>
+                
+                <div className="bg-white rounded-lg shadow-md p-6 max-w-2xl">
+                  <form onSubmit={(e) => {
+                    e.preventDefault();
+                    const formData = new FormData(e.target as HTMLFormElement);
+                    const to = formData.get('to') as string;
+                    const subject = formData.get('subject') as string;
+                    const message = formData.get('message') as string;
+                    const isHtml = formData.get('isHtml') === 'on';
+                    
+                    if (to && subject && message) {
+                      handleSendManualEmail(to, subject, message, isHtml).then((success) => {
+                        if (success) {
+                          // Reset form
+                          (e.target as HTMLFormElement).reset();
+                        }
+                      });
+                    } else {
+                      alert('Please fill in all required fields');
+                    }
+                  }}>
+                    <div className="mb-4">
+                      <label htmlFor="to" className="block text-sm font-medium text-primary-700 mb-2">
+                        Recipient Email *
+                      </label>
+                      <input
+                        type="email"
+                        id="to"
+                        name="to"
+                        required
+                        className="w-full px-3 py-2 border border-primary-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary-500"
+                        placeholder="customer@example.com"
+                      />
+                    </div>
+                    
+                    <div className="mb-4">
+                      <label htmlFor="subject" className="block text-sm font-medium text-primary-700 mb-2">
+                        Subject *
+                      </label>
+                      <input
+                        type="text"
+                        id="subject"
+                        name="subject"
+                        required
+                        className="w-full px-3 py-2 border border-primary-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary-500"
+                        placeholder="Enter email subject"
+                      />
+                    </div>
+                    
+                    <div className="mb-4">
+                      <label htmlFor="message" className="block text-sm font-medium text-primary-700 mb-2">
+                        Message *
+                      </label>
+                      <textarea
+                        id="message"
+                        name="message"
+                        required
+                        rows={8}
+                        className="w-full px-3 py-2 border border-primary-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary-500"
+                        placeholder="Enter your message here..."
+                      ></textarea>
+                    </div>
+                    
+                    <div className="mb-6">
+                      <label className="flex items-center">
+                        <input
+                          type="checkbox"
+                          name="isHtml"
+                          className="mr-2"
+                        />
+                        <span className="text-sm text-primary-700">This message contains HTML formatting</span>
+                      </label>
+                    </div>
+                    
+                    <div className="flex gap-4">
+                      <button
+                        type="submit"
+                        disabled={loading}
+                        className="bg-secondary-500 text-white px-6 py-2 rounded-full hover:bg-secondary-600 disabled:opacity-50 font-medium shadow-lg"
+                      >
+                        {loading ? 'Sending...' : 'Send Email'}
+                      </button>
+                      
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const customerEmail = prompt('Enter customer email to send pre-filled email:');
+                          if (customerEmail) {
+                            // Pre-fill form for customer
+                            const form = document.querySelector('form') as HTMLFormElement;
+                            (form.querySelector('[name="to"]') as HTMLInputElement).value = customerEmail;
+                            (form.querySelector('[name="subject"]') as HTMLInputElement).value = 'Update from Kala Jewelry';
+                            (form.querySelector('[name="message"]') as HTMLTextAreaElement).value = `Dear Valued Customer,\n\nThank you for your order with Kala Jewelry.\n\n[Your message here]\n\nBest regards,\nThe Kala Jewelry Team`;
+                          }
+                        }}
+                        className="bg-primary-500 text-white px-6 py-2 rounded-full hover:bg-primary-600 font-medium shadow-lg"
+                      >
+                        Quick Customer Email
+                      </button>
+                    </div>
+                  </form>
+                  
+                  <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-md">
+                    <h4 className="font-medium text-yellow-800 mb-2">Email Guidelines:</h4>
+                    <ul className="text-sm text-yellow-700 space-y-1">
+                      <li>• Admin will automatically receive a copy of all sent emails</li>
+                      <li>• Use professional tone and proper formatting</li>
+                      <li>• Include order numbers when relevant</li>
+                      <li>• Maximum message length: 10,000 characters</li>
+                      <li>• HTML emails should be properly formatted</li>
+                    </ul>
+                  </div>
+                </div>
+                
+                <div className="mt-8">
+                  <h3 className="text-lg font-medium text-primary-700 mb-4">Email Templates</h3>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="bg-white p-4 rounded-lg shadow">
+                      <h4 className="font-medium text-primary-700 mb-2">Order Update Template</h4>
+                      <p className="text-sm text-primary-600 mb-3">Use for order status updates</p>
+                      <button
+                        onClick={() => {
+                          const email = prompt('Customer email:');
+                          const orderNum = prompt('Order number:');
+                          if (email && orderNum) {
+                            const subject = `Order Update - #${orderNum}`;
+                            const message = `Dear Valued Customer,\n\nWe wanted to update you on your order #${orderNum}.\n\n[Update details here]\n\nIf you have any questions, please don't hesitate to contact us.\n\nBest regards,\nThe Kala Jewelry Team`;
+                            handleSendManualEmail(email, subject, message, false);
+                          }
+                        }}
+                        className="bg-blue-500 text-white px-4 py-2 rounded text-sm hover:bg-blue-600"
+                      >
+                        Use Template
+                      </button>
+                    </div>
+                    
+                    <div className="bg-white p-4 rounded-lg shadow">
+                      <h4 className="font-medium text-primary-700 mb-2">Care Instructions Template</h4>
+                      <p className="text-sm text-primary-600 mb-3">Send jewelry care tips</p>
+                      <button
+                        onClick={() => {
+                          const email = prompt('Customer email:');
+                          if (email) {
+                            const subject = 'Caring for Your Kala Jewelry';
+                            const message = `Dear Valued Customer,\n\nThank you for choosing Kala Jewelry! Here are some tips to keep your jewelry looking beautiful:\n\n• Store in a cool, dry place away from direct sunlight\n• Clean gently with a soft cloth after each wear\n• Avoid contact with perfumes, lotions, and chemicals\n• Store each piece separately to prevent scratching\n• For deep cleaning, use mild soap and warm water\n\nWith proper care, your jewelry will maintain its beauty for years to come.\n\nBest regards,\nThe Kala Jewelry Team`;
+                            handleSendManualEmail(email, subject, message, false);
+                          }
+                        }}
+                        className="bg-green-500 text-white px-4 py-2 rounded text-sm hover:bg-green-600"
+                      >
+                        Use Template
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

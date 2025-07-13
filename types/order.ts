@@ -23,6 +23,8 @@ export interface Order {
   createdAt: string;
   approvedAt?: string;
   adminNotes?: string;
+  deliveredAt?: string;
+  deliveryNotes?: string;
 }
 
 export interface EmailTemplate {

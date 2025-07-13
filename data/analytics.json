@@ -1,6 +1,15 @@
 {
-  "products": {},
-  "lastUpdated": "2025-07-10T12:45:30.968Z",
+  "products": {
+    "prod-1751970603444-gczj84gs9": {
+      "productId": "prod-1751970603444-gczj84gs9",
+      "views": 0,
+      "orders": 1,
+      "lastViewed": "2025-07-12T02:51:15.464Z",
+      "lastOrdered": "2025-07-12T02:51:15.464Z",
+      "popularityScore": 10
+    }
+  },
+  "lastUpdated": "2025-07-12T02:51:15.464Z",
   "categories": {
     "bracelets": {
       "categoryId": "bracelets",

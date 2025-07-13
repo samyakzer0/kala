@@ -129,8 +129,7 @@ export async function POST(request: NextRequest) {
       // Track product orders for analytics
       await trackProductOrder(item.id, item.quantity);
     }
-    
-    // Check email configuration
+      // Check email configuration
     const emailConfig = validateEmailConfiguration();
     if (!emailConfig.isConfigured) {
       console.warn('⚠️ Email not configured properly:', emailConfig.issues);
@@ -138,8 +137,8 @@ export async function POST(request: NextRequest) {
     } else {
       console.log('✅ Email configured with provider:', emailConfig.provider);
     }
-    
-    // Send emails using enhanced email service
+
+    // Send enhanced emails using new email service
     console.log('📧 Sending order confirmation to customer...');
     const customerEmailResult = await sendOrderConfirmation(order);
     

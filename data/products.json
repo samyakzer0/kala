@@ -10,11 +10,11 @@
     "featured": false,
     "new": false,
     "bestseller": false,
-    "stock": 6,
+    "stock": 5,
     "lowStockThreshold": 5,
     "isActive": true,
     "createdAt": "2025-07-08T10:30:03.444Z",
-    "updatedAt": "2025-07-08T10:50:26.790Z",
+    "updatedAt": "2025-07-12T02:51:15.461Z",
     "image": "/images/rings/rings-1751971756435-qsp2i354bcb.jpg"
   }
 ]
