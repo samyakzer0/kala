@@ -1,4 +1,5 @@
 // Shipping notification email templates for emailService.ts
+import { EmailTemplate } from './emailTemplates';
 
 // Get order shipped email template
 function getOrderShippedTemplate(order: any): EmailTemplate {

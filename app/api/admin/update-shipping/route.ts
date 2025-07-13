@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { getOrderById, updateOrderStatus, updateOrderShipping } from '../../../../utils/orderStorage';
+import { getOrderById, updateOrderStatus } from '../../../../utils/orderStorage';
 import { validateAdminKey, getClientIP } from '../../../../utils/auth';
 import { checkRateLimit, RATE_LIMITS, createRateLimitHeaders } from '../../../../utils/rateLimit';
 
@@ -75,22 +75,42 @@ export async function POST(request: NextRequest) {
     }
     
     // Update shipping information if provided
+    let shippingInfo = null;
     if (trackingId && provider && status === 'shipped') {
-      const shippingInfo = {
+      shippingInfo = {
         trackingId: trackingId.trim(),
         provider: provider.trim(),
         shippingMethod: shippingMethod?.trim(),
         estimatedDelivery: estimatedDelivery?.trim()
       };
       
-      await updateOrderShipping(orderId, shippingInfo);
+      // Update order status to shipped first, then add shipping info manually
+      const updatedOrder = await updateOrderStatus(orderId, status);
+      if (!updatedOrder) {
+        return NextResponse.json(
+          { success: false, message: 'Failed to update order status' },
+          { status: 500, headers: rateLimitHeaders }
+        );
+      }
+      
+      // Note: Shipping info would need to be stored in order or separate tracking system
+      // For now, we'll just update the status and send notification emails
+    } else {
+      // Update order status without shipping info
+      const updatedOrder = await updateOrderStatus(orderId, status);
+      if (!updatedOrder) {
+        return NextResponse.json(
+          { success: false, message: 'Failed to update order status' },
+          { status: 500, headers: rateLimitHeaders }
+        );
+      }
     }
     
-    // Update order status
-    const updatedOrder = await updateOrderStatus(orderId, status);
-    if (!updatedOrder) {
+    // Get the updated order for email sending
+    const finalOrder = await getOrderById(orderId);
+    if (!finalOrder) {
       return NextResponse.json(
-        { success: false, message: 'Failed to update order status' },
+        { success: false, message: 'Order not found after update' },
         { status: 500, headers: rateLimitHeaders }
       );
     }
@@ -99,32 +119,30 @@ export async function POST(request: NextRequest) {
     let emailResult: { success: boolean; messageId?: string; error?: string } = { success: true };
     
     try {
-      // Import email functions dynamically to avoid circular dependencies
-      let emailFunction;
-      
-      switch (status) {
-        case 'shipped':
-          const { sendOrderShipped } = await import('../../../../utils/emailService');
-          emailFunction = sendOrderShipped;
-          break;
-        case 'out_for_delivery':
-          const { sendOrderOutForDelivery } = await import('../../../../utils/emailService');
-          emailFunction = sendOrderOutForDelivery;
-          break;
-        case 'delivered':
-          const { sendOrderDelivered } = await import('../../../../utils/emailService');
-          emailFunction = sendOrderDelivered;
-          break;
-      }
-      
-      if (emailFunction) {
-        console.log(`📧 Sending ${status} email for order ${orderId}...`);
-        emailResult = await emailFunction(updatedOrder);
+      // Use our available email functions
+      if (status === 'delivered') {
+        console.log(`📧 Sending delivery confirmation email for order ${orderId}...`);
+        const { sendOrderDeliveryConfirmation } = await import('../../../../utils/emailService');
+        emailResult = await sendOrderDeliveryConfirmation(finalOrder);
         
         if (emailResult.success) {
-          console.log(`✅ ${status} email sent successfully for order ${orderId}`);
+          console.log(`✅ Delivery confirmation email sent successfully for order ${orderId}`);
         } else {
-          console.error(`❌ Failed to send ${status} email for order ${orderId}:`, emailResult.error);
+          console.error(`❌ Failed to send delivery confirmation email for order ${orderId}:`, emailResult.error);
+        }
+      } else {
+        // For other statuses (shipped, etc.), send a manual email with status update
+        console.log(`📧 Sending ${status} notification email for order ${orderId}...`);
+        const { sendManualEmail } = await import('../../../../utils/emailService');
+        const subject = `Order Update - #${finalOrder.id}`;
+        const message = `Dear ${finalOrder.customer.firstName} ${finalOrder.customer.lastName},\n\nYour order #${finalOrder.id} status has been updated to: ${status.charAt(0).toUpperCase() + status.slice(1)}\n\n${shippingInfo ? `Tracking ID: ${shippingInfo.trackingId}\nCarrier: ${shippingInfo.provider}\n${shippingInfo.shippingMethod ? `Shipping Method: ${shippingInfo.shippingMethod}\n` : ''}${shippingInfo.estimatedDelivery ? `Estimated Delivery: ${shippingInfo.estimatedDelivery}\n` : ''}\n` : ''}You can track your order anytime by visiting our website.\n\nBest regards,\nThe Kala Jewelry Team`;
+        
+        emailResult = await sendManualEmail(finalOrder.customer.email, subject, message, { isHtml: false, bccAdmin: true });
+        
+        if (emailResult.success) {
+          console.log(`✅ ${status} notification email sent successfully for order ${orderId}`);
+        } else {
+          console.error(`❌ Failed to send ${status} notification email for order ${orderId}:`, emailResult.error);
         }
       }
     } catch (emailError) {
@@ -137,7 +155,7 @@ export async function POST(request: NextRequest) {
     
     return NextResponse.json({ 
       success: true, 
-      order: updatedOrder,
+      order: finalOrder,
       emailSent: emailResult.success,
       emailError: emailResult.error 
     }, { headers: rateLimitHeaders });

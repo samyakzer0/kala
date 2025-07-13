@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
 
     console.log(`📋 Order ${action}:`, orderId);
 
-    let emailResult = { success: false, error: 'No email sent' };
+    let emailResult: { success: boolean; messageId?: string; error?: string } = { success: false, error: 'No email sent' };
 
     // Send approval notification email to customer (only if approved)
     if (action === 'approved') {
