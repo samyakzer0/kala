@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { sendManualEmail } from '../../../../utils/emailService';
-import { checkRateLimit, createRateLimitHeaders } from '../../../../utils/rateLimit';
+import { checkRateLimit, RATE_LIMITS, createRateLimitHeaders } from '../../../../utils/rateLimit';
 import { getClientIP } from '../../../../utils/auth';
 import { validateEmail } from '../../../../utils/validation';
 
@@ -9,8 +9,8 @@ export async function POST(request: NextRequest) {
   const clientIP = getClientIP(request);
   
   // Apply rate limiting (more restrictive for manual emails)
-  const rateLimit = checkRateLimit(clientIP, { maxRequests: 5, windowMs: 60000 }, 'manual-email'); // 5 emails per minute
-  const rateLimitHeaders = createRateLimitHeaders(rateLimit, { maxRequests: 5, windowMs: 60000 });
+  const rateLimit = checkRateLimit(clientIP, { requests: 5, windowMs: 60000 }, 'manual-email'); // 5 emails per minute
+  const rateLimitHeaders = createRateLimitHeaders(rateLimit, { requests: 5, windowMs: 60000 });
   
   if (!rateLimit.allowed) {
     return NextResponse.json(

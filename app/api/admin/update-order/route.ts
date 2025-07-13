@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { getOrderById, updateOrderStatus } from '../../../../utils/orderStorage';
 import { validateAdminKey, getClientIP } from '../../../../utils/auth';
-import { sendOrderApprovalNotification, sendManualEmail } from '../../../../utils/emailService';
+import { sendOrderApproval, sendOrderRejection } from '../../../../utils/emailService';
 import { checkRateLimit, RATE_LIMITS, createRateLimitHeaders } from '../../../../utils/rateLimit';
 
 export async function PATCH(request: NextRequest) {
@@ -90,7 +90,7 @@ export async function PATCH(request: NextRequest) {
     try {
       if (status === 'approved') {
         console.log(`📧 Sending approval email for order ${orderId}...`);
-        emailResult = await sendOrderApprovalNotification(updatedOrder);
+        emailResult = await sendOrderApproval(updatedOrder);
         
         if (emailResult.success) {
           console.log(`✅ Approval email sent successfully for order ${orderId}`);
@@ -100,10 +100,7 @@ export async function PATCH(request: NextRequest) {
         
       } else if (status === 'rejected') {
         console.log(`📧 Sending rejection email for order ${orderId}...`);
-        // For rejection, send a manual email with rejection details
-        const rejectionSubject = `Order Update - #${updatedOrder.id}`;
-        const rejectionMessage = `Dear ${updatedOrder.customer.firstName} ${updatedOrder.customer.lastName},\n\nWe regret to inform you that your order #${updatedOrder.id} has been rejected.\n\n${adminNotes ? `Reason: ${adminNotes}\n\n` : ''}Please contact us if you have any questions.\n\nBest regards,\nThe Kala Jewelry Team`;
-        emailResult = await sendManualEmail(updatedOrder.customer.email, rejectionSubject, rejectionMessage, { isHtml: false, bccAdmin: true });
+        emailResult = await sendOrderRejection(updatedOrder, adminNotes);
         
         if (emailResult.success) {
           console.log(`✅ Rejection email sent successfully for order ${orderId}`);

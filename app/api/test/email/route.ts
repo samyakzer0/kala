@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { sendOrderConfirmation, sendOrderApprovalNotification, sendManualEmail } from '../../../../utils/emailService';
+import { sendOrderConfirmation, sendOrderApproval, sendOrderRejection } from '../../../../utils/emailService';
 import { validateAdminKey, getClientIP } from '../../../../utils/auth';
 
 // This is a test endpoint for email functionality - only accessible with admin key
@@ -55,7 +55,7 @@ export async function GET(request: NextRequest) {
         }
       ],
       subtotal: 2099.98,
-      status: 'pending' as const,
+      status: 'pending',
       createdAt: new Date().toISOString()
     };
 
@@ -70,17 +70,22 @@ export async function GET(request: NextRequest) {
         break;
       case 'approval':
         emailType = 'Order Approval';
-        result = await sendOrderApprovalNotification({
+        result = await sendOrderApproval({
           ...testOrder,
-          status: 'approved' as const,
+          status: 'approved',
           approvedAt: new Date().toISOString()
         });
         break;
       case 'rejection':
         emailType = 'Order Rejection';
-        const rejectionSubject = `Order Update - #${testOrder.id}`;
-        const rejectionMessage = `Dear ${testOrder.customer.firstName} ${testOrder.customer.lastName},\n\nWe regret to inform you that your order #${testOrder.id} has been rejected.\n\nReason: Test rejection reason - items out of stock\n\nPlease contact us if you have any questions.\n\nBest regards,\nThe Kala Jewelry Team`;
-        result = await sendManualEmail(testOrder.customer.email, rejectionSubject, rejectionMessage, { isHtml: false, bccAdmin: true });
+        result = await sendOrderRejection(
+          {
+            ...testOrder,
+            status: 'rejected',
+            approvedAt: new Date().toISOString()
+          },
+          'Test rejection reason - items out of stock'
+        );
         break;
       default:
         return NextResponse.json(

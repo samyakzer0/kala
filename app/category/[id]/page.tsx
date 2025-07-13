@@ -17,11 +17,11 @@ export function generateStaticParams() {
 }
 
 type Props = {
-  params: Promise<{ id: string }>
+  params: { id: string }
 }
 
-export default async function CategoryPage({ params }: Props) {
-  const { id } = await params;
+export default function CategoryPage({ params }: Props) {
+  const { id } = params;
   
   // Check if category exists
   const category = categories.find(cat => cat.id === id);
