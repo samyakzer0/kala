@@ -109,7 +109,7 @@ function scanImageDirectories(): ImageFile[] {
           });
         }
       }
-    } catch (error) {
+    } catch {
       console.log(`No images found in ${category} directory`);
     }
   }
