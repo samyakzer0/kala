@@ -184,6 +184,11 @@ export async function getMostPopularProducts(limit: number = 6): Promise<Product
   }
 }
 
+// Alias for compatibility with database adapter
+export async function getPopularProducts(limit: number = 10): Promise<ProductAnalytics[]> {
+  return getMostPopularProducts(limit);
+}
+
 // Get trending products (recently viewed/ordered)
 export async function getTrendingProducts(limit: number = 6, daysBack: number = 7): Promise<ProductAnalytics[]> {
   try {
@@ -222,6 +227,11 @@ export async function getMostViewedCategories(limit: number = 4): Promise<Catego
     console.error('Error getting popular categories:', error);
     return [];
   }
+}
+
+// Alias for compatibility with database adapter
+export async function getPopularCategories(limit: number = 10): Promise<CategoryAnalytics[]> {
+  return getMostViewedCategories(limit);
 }
 
 // Get analytics for a specific product

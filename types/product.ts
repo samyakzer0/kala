@@ -28,6 +28,7 @@ export interface ProductFormData {
   featured: boolean;
   new: boolean;
   bestseller: boolean;
+  image?: string;
   stock: number;
   lowStockThreshold: number;
   isActive: boolean;

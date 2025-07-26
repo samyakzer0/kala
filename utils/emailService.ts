@@ -279,5 +279,26 @@ export async function sendEmail(
   });
 }
 
+// Order approval and rejection functions
+export async function sendOrderApproval(order: Order): Promise<{ success: boolean; messageId?: string; error?: string }> {
+  return await sendEmailWithAdminBCC(
+    order.customer.email,
+    KalaEmailTemplates.orderApproval(order),
+    {
+      bccAdmin: true
+    }
+  );
+}
+
+export async function sendOrderRejection(order: Order, reason?: string): Promise<{ success: boolean; messageId?: string; error?: string }> {
+  return await sendEmailWithAdminBCC(
+    order.customer.email,
+    KalaEmailTemplates.orderRejection(order, reason),
+    {
+      bccAdmin: true
+    }
+  );
+}
+
 // Export the email templates class for direct use
 export { KalaEmailTemplates };

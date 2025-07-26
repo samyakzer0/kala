@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAllProducts, createProduct, updateProduct, deleteProduct, getInventoryStats } from '../../../../utils/productStorage';
+import { getAllProducts, createProduct, updateProduct, deleteProduct, getInventoryStats } from '../../../../lib/database';
 import { validateAdminKey, getClientIP } from '../../../../utils/auth';
 import { validateProductData } from '../../../../utils/validation';
 

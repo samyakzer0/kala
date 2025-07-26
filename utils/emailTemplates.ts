@@ -608,4 +608,106 @@ This is an automated notification from Kala Jewelry E-commerce System.
       `
     };
   }
+
+  // Order Rejection Email (sent when admin rejects order)
+  static orderRejection(order: Order, reason?: string): EmailTemplate {
+    const defaultReason = "Unfortunately, we cannot proceed with your order at this time due to inventory or processing constraints.";
+    const rejectionReason = reason || defaultReason;
+
+    return {
+      subject: `Order Update: Order #${order.id} - Kala Jewelry`,
+      text: `
+Dear ${order.customer.firstName} ${order.customer.lastName},
+
+We regret to inform you that we cannot process your order at this time.
+
+ORDER DETAILS:
+Order Number: ${order.id}
+Order Date: ${new Date(order.createdAt).toLocaleDateString('en-IN')}
+Total Amount: ₹${order.subtotal.toLocaleString()}
+
+REASON:
+${rejectionReason}
+
+NEXT STEPS:
+• If you paid online, your payment will be refunded within 5-7 business days
+• You can browse our current collection on our website
+• Feel free to contact us for assistance with future orders
+
+We apologize for any inconvenience caused and appreciate your understanding.
+
+Best regards,
+The Kala Jewelry Team
+${process.env.NEXT_PUBLIC_SITE_URL || 'https://kala-jewelry.com'}
+      `,
+      html: `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Order Update - Kala Jewelry</title>
+</head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+  
+  <div style="text-align: center; margin-bottom: 40px;">
+    <h1 style="color: #8B4513; margin-bottom: 10px;">Kala Jewelry</h1>
+    <p style="color: #6b7280; margin: 0;">Exquisite Handcrafted Jewelry</p>
+  </div>
+
+  <div style="background-color: #fee2e2; border-left: 4px solid #dc2626; padding: 20px; margin-bottom: 30px;">
+    <h2 style="color: #dc2626; margin-top: 0;">Order Update Required</h2>
+    <p style="margin-bottom: 0; color: #374151;">We regret to inform you that we cannot process your order at this time.</p>
+  </div>
+  
+  <div style="background-color: #f9fafb; padding: 25px; border-radius: 8px; margin-bottom: 30px;">
+    
+    <h3 style="color: #374151; margin-top: 0; margin-bottom: 20px;">Order Details</h3>
+    
+    <div style="background-color: #ffffff; padding: 20px; border-radius: 6px; margin-bottom: 20px;">
+      <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+        <span style="color: #6b7280;">Order Number:</span>
+        <strong>${order.id}</strong>
+      </div>
+      <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+        <span style="color: #6b7280;">Order Date:</span>
+        <span>${new Date(order.createdAt).toLocaleDateString('en-IN')}</span>
+      </div>
+      <div style="display: flex; justify-content: space-between;">
+        <span style="color: #6b7280;">Total Amount:</span>
+        <strong style="color: #dc2626; font-size: 18px;">₹${order.subtotal.toLocaleString()}</strong>
+      </div>
+    </div>
+
+    <div style="background-color: #ffffff; padding: 20px; border-radius: 6px; margin-bottom: 20px;">
+      <h4 style="color: #374151; margin-top: 0; margin-bottom: 10px;">Reason:</h4>
+      <p style="margin: 0; color: #6b7280;">${rejectionReason}</p>
+    </div>
+
+    <div style="background-color: #fef3c7; border: 1px solid #f59e0b; padding: 15px; border-radius: 6px;">
+      <h4 style="color: #92400e; margin-top: 0; margin-bottom: 10px;">Next Steps:</h4>
+      <ul style="margin: 0; padding-left: 20px; color: #92400e;">
+        <li>If you paid online, your payment will be refunded within 5-7 business days</li>
+        <li>You can browse our current collection on our website</li>
+        <li>Feel free to contact us for assistance with future orders</li>
+      </ul>
+    </div>
+    
+  </div>
+
+  <div style="text-align: center; margin: 30px 0;">
+    <a href="${process.env.NEXT_PUBLIC_SITE_URL || 'https://kala-jewelry.com'}" style="display: inline-block; background-color: #8B4513; color: #ffffff; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: 600;">Browse Collection</a>
+  </div>
+
+  <div style="border-top: 1px solid #e5e7eb; padding-top: 20px; text-align: center; color: #6b7280; font-size: 14px;">
+    <p>We apologize for any inconvenience caused and appreciate your understanding.</p>
+    <p><strong>The Kala Jewelry Team</strong><br>
+    Email: support@kala-jewelry.com<br>
+    Website: ${process.env.NEXT_PUBLIC_SITE_URL || 'https://kala-jewelry.com'}</p>
+  </div>
+  
+</body>
+</html>
+      `
+    };
+  }
 }

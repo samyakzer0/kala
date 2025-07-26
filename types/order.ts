@@ -25,6 +25,13 @@ export interface Order {
   adminNotes?: string;
   deliveredAt?: string;
   deliveryNotes?: string;
+  shipping?: {
+    trackingId?: string;
+    provider?: string;
+    shippingMethod?: string;
+    estimatedDelivery?: string;
+    shippedAt?: string;
+  };
 }
 
 export interface EmailTemplate {

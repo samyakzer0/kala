@@ -1,0 +1,20 @@
+[
+  {
+    "id": "prod-1751970603444-gczj84gs9",
+    "name": "Crimson Red",
+    "price": 120,
+    "category": "rings",
+    "subcategory": "",
+    "gemColor": "",
+    "description": "dfd",
+    "featured": false,
+    "new": false,
+    "bestseller": false,
+    "stock": 5,
+    "lowStockThreshold": 5,
+    "isActive": true,
+    "createdAt": "2025-07-08T10:30:03.444Z",
+    "updatedAt": "2025-07-12T02:51:15.461Z",
+    "image": "/images/rings/rings-1751971756435-qsp2i354bcb.jpg"
+  }
+]

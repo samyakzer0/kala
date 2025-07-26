@@ -2,6 +2,10 @@ import { Order } from '../types/order';
 import { promises as fs } from 'fs';
 import path from 'path';
 
+// DEPRECATED: This file is now replaced by Supabase services
+// Use services/orderService.ts for new implementations
+// This file is kept for backward compatibility during migration
+
 // In production, you would use a proper database like PostgreSQL, MongoDB, etc.
 // This is a simple file-based storage for demonstration purposes
 
@@ -159,4 +163,34 @@ export async function getOrderStats(): Promise<{
   stats.averageOrderValue = stats.total > 0 ? stats.totalRevenue / stats.total : 0;
   
   return stats;
+}
+
+export async function updateOrderShipping(
+  orderId: string,
+  shippingInfo: {
+    trackingId: string;
+    provider: string;
+    shippingMethod?: string;
+    estimatedDelivery?: string;
+  }
+): Promise<Order | null> {
+  const orders = await loadOrders();
+  const orderIndex = orders.findIndex(order => order.id === orderId);
+  
+  if (orderIndex === -1) {
+    return null;
+  }
+  
+  // Update the order with shipping information
+  orders[orderIndex] = {
+    ...orders[orderIndex],
+    shipping: {
+      ...orders[orderIndex].shipping,
+      ...shippingInfo,
+      shippedAt: new Date().toISOString()
+    }
+  };
+  
+  await saveOrders(orders);
+  return orders[orderIndex];
 }

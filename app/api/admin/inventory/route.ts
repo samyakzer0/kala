@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { updateProductStock, getLowStockProducts, isProductInStock, decreaseProductStock } from '../../../../utils/productStorage';
+import { updateProductStock, getLowStockProducts, isProductInStock, decreaseProductStock } from '../../../../lib/database';
 
 const ADMIN_KEY = 'kala-admin-2024';
 
