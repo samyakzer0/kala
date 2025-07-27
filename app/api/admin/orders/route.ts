@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { getAllOrders, getOrderStats } from '../../../../utils/orderStorage';
+import { getAllOrders, getOrderStats } from '../../../../lib/database';
 import { validateAdminKey, getClientIP } from '../../../../utils/auth';
 
 export async function GET(request: NextRequest) {
