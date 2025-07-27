@@ -33,25 +33,47 @@ export function validateAdminKey(providedKey: string, clientIP: string = 'unknow
     }
   }
   
-  // Constant-time comparison to prevent timing attacks
-  const isValid = crypto.timingSafeEqual(
-    Buffer.from(providedKey, 'utf8'),
-    Buffer.from(ADMIN_KEY, 'utf8')
-  );
-  
-  if (!isValid) {
+  // Simple comparison first to avoid buffer length issues
+  if (!providedKey || !ADMIN_KEY || providedKey.length !== ADMIN_KEY.length) {
     // Track failed attempts
     const currentAttempts = authAttempts.get(clientIP) || { count: 0, lastAttempt: 0 };
     authAttempts.set(clientIP, {
       count: currentAttempts.count + 1,
       lastAttempt: now
     });
-  } else {
-    // Clear attempts on successful authentication
-    authAttempts.delete(clientIP);
+    return false;
   }
   
-  return isValid;
+  try {
+    // Constant-time comparison to prevent timing attacks
+    const isValid = crypto.timingSafeEqual(
+      Buffer.from(providedKey, 'utf8'),
+      Buffer.from(ADMIN_KEY, 'utf8')
+    );
+    
+    if (!isValid) {
+      // Track failed attempts
+      const currentAttempts = authAttempts.get(clientIP) || { count: 0, lastAttempt: 0 };
+      authAttempts.set(clientIP, {
+        count: currentAttempts.count + 1,
+        lastAttempt: now
+      });
+    } else {
+      // Clear attempts on successful authentication
+      authAttempts.delete(clientIP);
+    }
+    
+    return isValid;
+  } catch (error) {
+    console.error('Admin key validation error:', error);
+    // Track failed attempts
+    const currentAttempts = authAttempts.get(clientIP) || { count: 0, lastAttempt: 0 };
+    authAttempts.set(clientIP, {
+      count: currentAttempts.count + 1,
+      lastAttempt: now
+    });
+    return false;
+  }
 }
 
 /**
