@@ -10,8 +10,8 @@ import {
   sendAdminNotification,
   validateEmailConfiguration 
 } from '../../../utils/emailService';
-import { createOrder } from '../../../utils/orderStorage';
-import { isProductInStock, decreaseProductStock, getProductById } from '../../../utils/productStorage';
+import { createOrder } from '../../../lib/database';
+import { isProductInStock, decreaseProductStock, getProductById } from '../../../lib/database';
 import { checkRateLimit, RATE_LIMITS, createRateLimitHeaders } from '../../../utils/rateLimit';
 import { getClientIP } from '../../../utils/auth';
 import { validateEmail } from '../../../utils/validation';

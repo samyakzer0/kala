@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { getOrderById, getOrdersByCustomerEmail } from '../../../utils/orderStorage';
+import { getOrderById, getOrdersByCustomerEmail } from '../../../lib/database';
 
 export async function GET(request: NextRequest) {
   try {

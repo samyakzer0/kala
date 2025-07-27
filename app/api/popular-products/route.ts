@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getMostPopularProducts, getTrendingProducts, trackProductView } from '../../../utils/analytics';
-import { getProductById } from '../../../utils/productStorage';
+import { getProductById } from '../../../lib/database';
 
 export async function GET(request: NextRequest) {
   try {
