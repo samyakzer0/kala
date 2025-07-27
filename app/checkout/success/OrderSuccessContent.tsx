@@ -142,7 +142,7 @@ export default function OrderSuccessContent() {
                   <p><strong>Order ID:</strong> {orderInfo.id}</p>
                   <p><strong>Customer:</strong> {orderInfo.customer.firstName} {orderInfo.customer.lastName}</p>
                   <p><strong>Email:</strong> {orderInfo.customer.email}</p>
-                  <p><strong>Total:</strong> ${orderInfo.subtotal.toFixed(2)}</p>
+                  <p><strong>Total:</strong> ₹{orderInfo.subtotal.toFixed(2)}</p>
                   <p><strong>Order Date:</strong> {new Date(orderInfo.createdAt).toLocaleDateString()}</p>
                 </div>
               </div>

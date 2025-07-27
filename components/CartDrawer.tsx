@@ -121,7 +121,7 @@ export default function CartDrawer({ onClose }: CartDrawerProps) {
                   {/* Product Info */}
                   <div className="flex-1">
                     <h3 className="font-medium text-sm text-primary-500">{item.name}</h3>
-                    <p className="text-primary-400 text-xs">${item.price}</p>
+                    <p className="text-primary-400 text-xs">₹{item.price}</p>
                     
                     {/* Quantity Controls */}
                     <div className="flex items-center mt-1">
@@ -145,7 +145,7 @@ export default function CartDrawer({ onClose }: CartDrawerProps) {
                   
                   {/* Item Total & Remove */}
                   <div className="text-right">
-                    <p className="font-medium">${(item.price * item.quantity).toFixed(2)}</p>
+                    <p className="font-medium">₹{(item.price * item.quantity).toFixed(2)}</p>
                     <button
                       onClick={() => removeItem(item.id)}
                       className="text-xs text-[#872730] hover:underline mt-1"
@@ -166,7 +166,7 @@ export default function CartDrawer({ onClose }: CartDrawerProps) {
             <>
               <div className="flex justify-between mb-4 text-primary-500">
                 <span>Subtotal</span>
-                <span className="font-medium">${subtotal.toFixed(2)}</span>
+                <span className="font-medium">₹{subtotal.toFixed(2)}</span>
               </div>
               
               <Link href="/checkout">

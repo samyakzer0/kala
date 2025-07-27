@@ -75,7 +75,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           <Link href={`/product/${product.id}`} onClick={handleProductClick}>
             <h3 className="font-medium text-primary-500 hover:text-primary-400 transition-colors">{product.name}</h3>
           </Link>
-          <p className="font-serif text-primary-500">${product.price}</p>
+          <p className="font-serif text-primary-500">₹{product.price}</p>
         </div>
         
         {/* Stock Information */}

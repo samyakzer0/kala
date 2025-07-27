@@ -339,7 +339,7 @@ function TrackOrderContent() {
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="font-medium text-primary-700">${item.price}</p>
+                      <p className="font-medium text-primary-700">₹{item.price}</p>
                       <p className="text-sm text-primary-500">Qty: {item.quantity}</p>
                     </div>
                   </div>
@@ -370,7 +370,7 @@ function TrackOrderContent() {
             <div className="px-8 py-6">
               <div className="flex justify-between items-center">
                 <h3 className="text-lg font-medium text-primary-700">Order Total</h3>
-                <p className="text-2xl font-bold text-primary-700">${order.subtotal}</p>
+                <p className="text-2xl font-bold text-primary-700">₹{order.subtotal}</p>
               </div>
             </div>
           </motion.div>
