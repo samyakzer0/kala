@@ -8,6 +8,9 @@
       "maxDuration": 30
     }
   },
+  "env": {
+    "USE_SUPABASE_DATABASE": "true"
+  },
   "headers": [
     {
       "source": "/api/(.*)",
