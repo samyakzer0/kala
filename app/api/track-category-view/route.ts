@@ -1,41 +1,50 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { trackCategoryView } from '../../../utils/analytics';
 import { sanitizeString } from '../../../utils/validation';
-import { LRUCache } from 'lru-cache';
 
-// Rate limiter for category views (100 requests per IP per hour)
-const ratelimit = new LRUCache({
-  max: 500,
-  ttl: 60 * 60 * 1000, // 1 hour
-});
+// Simple in-memory rate limiting for category views
+const rateLimit = new Map<string, { count: number; resetTime: number }>();
 
 const getIP = (request: NextRequest) => {
   const xff = request.headers.get('x-forwarded-for');
   return xff ? xff.split(',')[0] : '127.0.0.1';
 };
 
-// Rate limiting function
-async function rateLimiter(request: NextRequest, limit: number, identifier: string) {
-  const ip = getIP(request);
-  const tokenKey = `${ip}:${identifier}`;
-  const currentUsage = ratelimit.get(tokenKey) as number || 0;
+// More lenient rate limiting for category tracking
+function checkRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const key = `category_view:${ip}`;
+  const limit = 1000; // 1000 requests per hour
+  const windowMs = 60 * 60 * 1000; // 1 hour
+
+  const record = rateLimit.get(key);
   
-  if (currentUsage >= limit) {
+  if (!record || now > record.resetTime) {
+    // First request or window expired
+    rateLimit.set(key, { count: 1, resetTime: now + windowMs });
+    return true;
+  }
+  
+  if (record.count >= limit) {
     return false;
   }
   
-  ratelimit.set(tokenKey, currentUsage + 1);
+  record.count++;
   return true;
 }
 
 export async function POST(request: NextRequest) {
   try {
-    // Apply rate limiting
-    const isAllowed = await rateLimiter(request, 100, 'CATEGORY_VIEW');
+    // Apply more lenient rate limiting for category tracking
+    const ip = getIP(request);
+    const isAllowed = checkRateLimit(ip);
+    
     if (!isAllowed) {
+      // Silently ignore rate limited requests for analytics
+      // (Better UX than showing errors for analytics tracking)
       return NextResponse.json(
-        { success: false, message: 'Rate limit exceeded. Please try again later.' },
-        { status: 429 }
+        { success: true, message: 'Rate limited - tracking skipped' },
+        { status: 200 }
       );
     }
 

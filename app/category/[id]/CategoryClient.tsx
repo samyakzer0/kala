@@ -92,22 +92,35 @@ export default function CategoryClient({
   // Fetch products on mount and track category view
   useEffect(() => {
     fetchProducts();
+  }, [fetchProducts]);
+
+  // Track category view only once per category
+  useEffect(() => {
+    // Simple client-side cache to prevent duplicate tracking
+    const trackedCategories = new Set(
+      JSON.parse(sessionStorage.getItem('trackedCategories') || '[]')
+    );
     
-    // Track category view
-    const trackCategory = async () => {
-      try {
-        await fetch('/api/track-category-view', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ categoryId })
-        });
-      } catch (error) {
-        console.error('Error tracking category view:', error);
-      }
-    };
-    
-    trackCategory();
-  }, [fetchProducts, categoryId]);
+    if (!trackedCategories.has(categoryId)) {
+      const trackCategory = async () => {
+        try {
+          await fetch('/api/track-category-view', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ categoryId })
+          });
+          
+          // Mark as tracked
+          trackedCategories.add(categoryId);
+          sessionStorage.setItem('trackedCategories', JSON.stringify([...trackedCategories]));
+        } catch (error) {
+          console.error('Error tracking category view:', error);
+        }
+      };
+      
+      trackCategory();
+    }
+  }, [categoryId]); // Only track when categoryId changes
   
   // Animation variants
   const containerVariants = {
